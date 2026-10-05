@@ -88,6 +88,12 @@ button{font-family:inherit;}
   background-image:radial-gradient(#dce9f1 2px, transparent 2.3px); background-size:26px 26px;
 }
 #canvas.wiring{cursor:crosshair;}
+#ghost{
+  position:fixed; z-index:95; pointer-events:none;
+  width:88px; transform:translate(-50%,-58%);
+  filter:drop-shadow(0 8px 14px rgba(30,60,90,.35));
+}
+#ghost svg{width:100%; height:auto; display:block;}
 #emptyHint{
   position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
   background:#ffffffeb; border-radius:18px; padding:14px 22px; text-align:center;
@@ -210,6 +216,17 @@ button{font-family:inherit;}
 .tcount{font-size:14px;color:#51646e;min-width:56px;}
 .rotor2{animation:spin 2.6s linear infinite;transform-box:fill-box;transform-origin:center;}
 
+#toast{white-space:pre-line;}
+.quizscore{font-size:15px;font-weight:bold;color:#17546b;margin:6px 0;}
+.quizq{background:#f4fafd;border:2px solid #dceaf2;border-radius:14px;padding:9px 12px;margin:9px 0;text-align:left;}
+.quizq-t{font-weight:bold;font-size:15px;color:#2b3a42;margin-bottom:6px;}
+.quizopt{display:block;width:100%;text-align:left;margin:5px 0;padding:8px 12px;border-radius:10px;border:2px solid #cfe0ea;background:#fff;font-size:14.5px;cursor:pointer;font-family:inherit;color:#2b3a42;transition:background .12s,border-color .12s;}
+.quizopt:hover:not(:disabled){border-color:var(--blue);background:#eef7fb;}
+.quizopt.right{background:#e7f8ee;border-color:var(--green);font-weight:bold;}
+.quizopt.wrong{background:#fdecec;border-color:var(--red);}
+.quizopt:disabled{cursor:default;}
+.quizwhy{font-size:13.5px;color:#41545e;margin-top:6px;background:#fff8e1;border-radius:8px;padding:6px 9px;}
+
 @media (max-width:720px){
   #main{flex-direction:column;}
   #palette{width:auto; flex-direction:row; flex-wrap:wrap; max-height:132px;}
@@ -217,7 +234,7 @@ button{font-family:inherit;}
   #goalcard{width:210px; right:8px; top:8px; padding:9px 10px;}
 }
 </style>
-</head>
+ <link rel="stylesheet" type="text/css" href="/entensys-xscript/abl.css" /> </head>
 <body>
 
 <svg width="0" height="0" style="position:absolute">
@@ -434,67 +451,114 @@ const LEVELS=[
  {n:1,title:'Зажги лампочку',goal:'Собери цепь, чтобы лампочка светилась.',
   fact:'Электрический ток — это крошечные заряженные частички. По проводу они ползут медленно, а вот «сигнал» бежит почти со скоростью света!',
   story:'Привет! Я профессор Вольт. Электрический ток любит бегать по кругу — по замкнутой цепи! Возьми батарейку и лампочку и соедини их проводами так, чтобы ток побежал от «+» к «−» — и лампочка загорится! P.S. В меню есть «📖 Азбука электрика» — там всё объяснено с анимациями!',
-  hint:'Нужно два провода: от «+» батарейки к любой клемме лампочки, и от другой клеммы лампочки обратно к «−» батарейки.',
+  hints:[
+  'Нужно два провода: от «+» батарейки к любой клемме лампочки, и от другой клеммы лампочки обратно к «−» батарейки.',
+  'Потяни мышкой от кружочка «+» батарейки к кружочку на лампочке — получится провод. Повтори для второй клеммы.',
+  'Лампа не горит? Проверь, что провода присоединены именно к кружочкам-клеммам (при наведении они увеличиваются), а не просто рядом.'],
   palette:['battery','lamp'],
   demo:{vb:'0 0 340 160',components:[{type:'battery',x:70,y:105},{type:'lamp',x:250,y:105}],wires:[['d0',1,'d1',0],['d1',1,'d0',0]]}},
  {n:2,title:'Выключатель',goal:'Лампочка должна светиться, когда выключатель включён, и гаснуть, когда выключен.',
   fact:'Выключатель в твоей комнате делает ровно то же самое — размыкает цепь. Поэтому лампа гаснет мгновенно!',
   story:'Настоящий электрик управляет током! Выключатель размыкает цепь: щёлк — и ток не может пробежать, лампочка гаснет. Собери цепь с выключателем и попробуй щёлкать им!',
-  hint:'Порядок в цепочке может быть любым: батарейка → выключатель → лампочка → обратно к батарейке. Щёлкни по выключателю, чтобы закрыть цепь!',
+  hints:[
+  'Порядок в цепочке может быть любым: батарейка → выключатель → лампочка → обратно к батарейке.',
+  'Ток должен проходить ЧЕРЕЗ выключатель. Если лампа горит, даже когда выключатель выключен — ты соединил её в обход!',
+  'Щёлкни по выключателю (клик без перетаскивания), чтобы замкнуть цепь, и жми ✅ Проверить.'],
   palette:['battery','lamp','switch'],
   demo:{vb:'0 0 340 160',closed:true,components:[{type:'battery',x:55,y:105},{type:'switch',x:170,y:105},{type:'lamp',x:285,y:105}],
         wires:[['d0',1,'d1',0],['d1',1,'d2',0],['d2',1,'d0',0]]}},
- {n:3,title:'Две лампочки подряд',goal:'Соедини две лампочки последовательно, чтобы обе светились.',
+ {n:3,title:'Две лампочки подряд',goal:'Соедини две лампочки одной цепочкой (последовательно): ток должен пройти через обе по очереди, и обе должны гореть.',
   fact:'Старые новогодние гирлянды были последовательными: перегорала одна лампочка — гасла ВСЯ гирлянда! А ты знаешь почему?',
   story:'Если детали идут одна за другой, как вагончики, — это последовательное соединение. Ток пробегает через все по очереди. Соедини батарейку и две лампочки в одну цепочку!',
-  hint:'Цепочка: «+» → лампочка → лампочка → «−». Если одну лампочку убрать, погаснут обе — проверь себя!',
+  hints:[
+  'Цепочка: «+» → лампочка → лампочка → «−». Ток проходит через обе лампы по очереди, как поезд через туннели.',
+  'Соедини правую клемму первой лампы с левой клеммой второй — получится «паровозик» из двух ламп. Нужно всего 3 провода.',
+  'Проверь себя: выбери одну лампу и нажми Delete — вторая тоже должна погаснуть. Если горит дальше — у тебя получилось параллельное соединение, а нужно одна цепочка!'],
   palette:['battery','lamp'],
   demo:{vb:'0 0 340 160',components:[{type:'battery',x:50,y:105},{type:'lamp',x:160,y:105},{type:'lamp',x:270,y:105}],
         wires:[['d0',1,'d1',0],['d1',1,'d2',0],['d2',1,'d0',0]]}},
- {n:4,title:'Две лампочки параллельно',goal:'Подключи две лампочки параллельно: если одну убрать, вторая продолжает светить.',
+ {n:4,title:'Две лампочки параллельно',goal:'Подключи две лампочки параллельно — двумя отдельными веточками. Если одну убрать, вторая продолжит светить.',
   fact:'В твоей квартире все лампы и розетки подключены параллельно — поэтому можно выключить одну лампу, и остальные продолжат работать.',
   story:'А теперь хитрый трюк — параллельное соединение! Сделай для тока две дорожки-веточки между одними и теми же точками. Ток разделится, и каждая лампочка будет светить сама по себе — как лампы в доме!',
-  hint:'Соедини плюсы обеих лампочек с плюсом батареи, а минусы — с минусом. Одна лампочка погаснет — вторая продолжит светить!',
+  hints:[
+  'Соедини плюсы обеих лампочек с «+» батареи, а минусы — с «−». Получатся две отдельные веточки.',
+  'Представь две дорожки между одними и теми же точками: по одной ток бежит к первой лампе, по другой — ко второй.',
+  'Проверь себя: выбери одну лампу и нажми Delete — вторая должна продолжить гореть. Погасла — значит, лампы соединены одной цепочкой, а нужны веточки!'],
   palette:['battery','lamp'],
   demo:{vb:'0 0 340 200',components:[{type:'battery',x:60,y:100},{type:'lamp',x:245,y:40},{type:'lamp',x:245,y:160}],
         wires:[['d0',1,'d1',0],['d0',1,'d2',0],['d1',1,'d0',0],['d2',1,'d0',0]]}},
  {n:5,title:'Моторчик',goal:'Собери цепь, чтобы моторчик крутился.',
   fact:'У моторчиков постоянного тока есть интересное свойство: если поменять местами плюс и минус, он начнет крутиться в обратную сторону!',
   story:'Ток не только светит — он умеет крутить! Моторчик превращает электричество во вращение. Подключи его к батарейке! Заметь: если поменять провода местами, он закрутится в другую сторону!',
-  hint:'Подключи провода от батарейки к клеммам моторчика. Чтобы изменить направление вращения, просто поменяй провода местами!',
+  hints:[
+  'Подключи провода от батарейки к обеим клеммам моторчика — как в первом уровне с лампой.',
+  'Чтобы изменить направление вращения, поменяй провода местами или поверни моторчик кнопкой ⟳.',
+  'Мотору важна полярность: «+» батареи должен идти к «+» мотора. Крутится не туда — переверни!'],
   palette:['battery','motor'],
   demo:{vb:'0 0 340 160',components:[{type:'battery',x:70,y:105},{type:'motor',x:250,y:105}],wires:[['d0',1,'d1',0],['d1',1,'d0',0]]}},
  {n:6,title:'Звонок и кнопка',goal:'Нажми кнопку — звонок звенит. Отпусти — замолкает.',
   fact:'Дверной звонок работает именно так: кнопка замыкает цепь, только пока на неё нажимают. Поэтому звонок звонит, лишь когда держишь палец!',
   story:'Дзынь! Кнопка — как выключатель, но замыкает цепь только пока её держишь. Собери цепь с кнопкой и звонком и понажимай кнопку!',
-  hint:'Цепочка: «+» → кнопка → звонок → «−». Полярность у кнопки и звонка не важна — соединяй как удобно. Удерживай кнопку нажатой, чтобы услышать звонок, а при отпускании он должен умолкать.',
+  hints:[
+  'Цепочка: «+» → кнопка → звонок → «−». Полярность у кнопки и звонка не важна — соединяй как удобно.',
+  'Кнопку нужно УДЕРЖИВАТЬ нажатой: нажми и не отпускай, пока звонок звенит.',
+  'Звонок молчит? Ток должен идти ЧЕРЕЗ кнопку. Если звонит без нажатия — убери провод, идущий в обход кнопки.'],
   palette:['battery','button','bell'],
   demo:{vb:'0 0 340 160',pressed:true,components:[{type:'battery',x:55,y:105},{type:'button',x:170,y:105},{type:'bell',x:285,y:105}],
         wires:[['d0',1,'d1',0],['d1',1,'d2',0],['d2',1,'d0',0]]}},
  {n:7,title:'Светодиод и полярность',goal:'Заставь светодиод светиться (ток должен входить через «+»).',
   fact:'Светодиоды окружают нас повсюду: индикаторы роутера, экраны, светофоры и фонарики в смартфоне — это всё они!',
   story:'Светодиод — LED — очень полезная деталь, но привередливая: ток должен входить в него через ножку «+», а выходить через «−». Подключи наоборот — и он не засветится!',
-  hint:'Светодиод светится, когда ток идёт от «+» батарейки к плюсовой клемме светодиода. Если не светится — поменяй провода местами или переверни его!',
+  hints:[
+  'Светодиод светится, когда ток входит в его ножку «+» (левая клемма, с подписью «+» красным).',
+  'Не светится? Поверни светодиод кнопкой ⟳ (или клавишей R) или поменяй провода местами.',
+  'Знайка: стрелочка внутри треугольника светодиода показывает, куда току разрешено идти.'],
   palette:['battery','led'],
   demo:{vb:'0 0 340 160',components:[{type:'battery',x:70,y:105},{type:'led',x:250,y:105}],wires:[['d0',1,'d1',0],['d1',1,'d0',0]]}},
  {n:8,title:'Резистор — дозор тока',goal:'Поставь резистор в цепь с лампочкой: лампочка светится, но тусклее.',
   fact:'Резисторы — самые распространённые детали на свете: в любом телефоне их сотни, и каждый стоит на «посту», охраняя цепь от лишнего напряжения!',
   story:'Резистор — как узкий мостик или труба: он ограничивает ток, и лампочка светит слабее. Подключи резистор в цепочку с лампочкой прямо на пути тока!',
-  hint:'Резистор должен стоять В цепочке: «+» → резистор → лампочка → «−». Лампочка будет светиться мягче — так и задумано!',
+  hints:[
+  'Резистор должен стоять В цепочке: «+» → резистор → лампочка → «−».',
+  'Лампочка будет светиться мягче — так и задумано! Значит, резистор ограничивает ток.',
+  'Не ставь резистор в отдельную веточку рядом с лампой — ток пойдёт мимо него, и лампа будет гореть в полный накал.'],
   palette:['battery','lamp','resistor'],
   demo:{vb:'0 0 340 160',components:[{type:'battery',x:50,y:105},{type:'resistor',x:160,y:105},{type:'lamp',x:275,y:105}],
         wires:[['d0',1,'d1',0],['d1',1,'d2',0],['d2',1,'d0',0]]}},
- {n:9,title:'Свободная песочница',sandbox:true,goal:'Свободная игра: собери любую схему из всех деталей!',
+ {n:9,title:'Сигнализация',goal:'Сделай две параллельные веточки: за одной кнопкой должны работать И лампочка, И звонок. Нажал — свет и звук, отпустил — тишина.',
+  fact:'В настоящих домах один выключатель часто управляет несколькими приборами сразу — точно так же, как твоя кнопка управляет и лампой, и звонком!',
+  story:'Отлично, ты уже знаешь про параллельные веточки! А теперь собери настоящий прибор: кнопка — «главный рубильник», а лампочка и звонок — две независимые веточки после неё. Получится сигнализация!',
+  hints:[
+  'Поставь кнопку в начало цепи, ДО развилки — она будет включать всё сразу.',
+  'После кнопки сделай развилку: одна веточка к лампочке, другая — к звонку. Обе возвращаются к «−» батарейки.',
+  'Проверь независимость: выбери звонок и нажми Delete — при нажатой кнопке лампа должна продолжать гореть.'],
+  palette:['battery','button','lamp','bell'],
+  demo:{vb:'0 0 340 200',pressed:true,components:[{type:'battery',x:55,y:145},{type:'button',x:160,y:145},{type:'lamp',x:275,y:80},{type:'bell',x:275,y:170}],
+        wires:[['d0',1,'d1',0],['d1',1,'d2',0],['d1',1,'d3',0],['d2',1,'d0',0],['d3',1,'d0',0]]}},
+ {n:10,title:'Два замка',goal:'Лампочка должна гореть, только когда выключатель ВКЛЮЧЕН и кнопка НАЖАТА одновременно. Иначе — темнота!',
+  fact:'Так устроена защита многих станков и игрушек: пока не «закрыты» все условия (крышка, кнопка, рычаг), механизм не запустится.',
+  story:'Хочешь секрет? Поставь выключатель и кнопку ОДНОЙ цепочкой с лампочкой. Тогда лампа загорится, только когда открыты оба «замка»: выключатель включен И кнопка нажата!',
+  hints:[
+  'Собери один «паровозик»: «+» → выключатель → кнопка → лампочка → «−».',
+  'Если лампа горит без нажатия кнопки — ток идёт в обход неё. Убери лишний провод!',
+  'Проверь все варианты: лампа горит ТОЛЬКО когда выключатель включён и кнопка зажата.'],
+  palette:['battery','switch','button','lamp'],
+  demo:{vb:'0 0 340 160',closed:true,pressed:true,components:[{type:'battery',x:40,y:105},{type:'switch',x:122,y:105},{type:'button',x:204,y:105},{type:'lamp',x:288,y:105}],
+        wires:[['d0',1,'d1',0],['d1',1,'d2',0],['d2',1,'d3',0],['d3',1,'d0',0]]}},
+ {n:11,title:'Свободная песочница',sandbox:true,goal:'Свободная игра: собери любую схему из всех деталей!',
   story:'Ты прошёл все уроки, юный электрик! Теперь — свобода: все детали твои. Собирай любые схемы, экспериментируй, изобретай!',
-  hint:'Всё уже известно: цепь — это круг, выключатель управляет, параллельные ветки работают независимо. Изобретай!',
+  hints:[
+  'Попробуй собрать сигнализацию: кнопка + звонок + лампа. Нажал — свет и звук!',
+  'Проверь разницу: лампы последовательно гаснут все разом, а параллельно — каждая сама по себе.',
+  'Светодиод + резистор + батарейка = настоящий фонарик! Правильно подключи полярность.'],
   palette:['battery','lamp','switch','button','motor','bell','led','resistor'],demo:null},
 ];
 
 /* ================= состояние ================= */
 const S={components:[],wires:[],sel:null,selWire:null};
-let LV=null, sim=null, prevShort=false, pendingRender=false;
+let LV=null, sim=null, prevShort=false, prevClosed=false, pendingRender=false;
 let progress={unlocked:1,stars:{}};
-try{const p=JSON.parse(localStorage.getItem('ye_progress')||'null'); if(p&&p.unlocked)progress=p;}catch(e){}
+try{const p=JSON.parse(localStorage.getItem('ye_progress')||'null'); if(p&&p.unlocked){progress=p; if(progress.unlocked>=9)progress.unlocked=11;}}catch(e){}
 function saveProgress(){try{localStorage.setItem('ye_progress',JSON.stringify(progress));}catch(e){}}
 
 /* ================= симуляция (ИСПРАВЛЕНО) ================= */
@@ -631,11 +695,11 @@ function circuitMarkup(cs,ws,sm,mini){
   const cnt={};
   ws.forEach(w=>{cnt[w.a.c+':'+w.a.t]=(cnt[w.a.c+':'+w.a.t]||0)+1;cnt[w.b.c+':'+w.b.t]=(cnt[w.b.c+':'+w.b.t]||0)+1;});
   cs.forEach(c=>COMP[c.type].terms.forEach((t,i)=>{
-    if((cnt[c.id+':'+i]||0)>=2){const p=termPos(c,i);out+='<circle cx="'+p.x+'" cy="'+p.y+'" r="5" fill="#41545e"/>';}
+    if((cnt[c.id+':'+i]||0)>=1){const p=termPos(c,i);out+='<circle cx="'+p.x+'" cy="'+p.y+'" r="4.5" fill="#41545e"/>';}
   }));
   cs.forEach(c=>{
     const st=sm.on[c.id]||{on:false};
-    out+='<g class="comp"'+(mini?'':' data-comp="'+c.id+'"')+' transform="translate('+c.x+','+c.y+') rotate('+(c.rot||0)+')">'+COMP[c.type].draw(c,st,sm)+'</g>';
+    out+='<g class="comp"'+(mini?'':' data-comp="'+c.id+'"')+' transform="translate('+c.x+','+c.y+') rotate('+(c.rot||0)+')">'+(mini?'':E('title',{},COMP[c.type].name+' — кликни, чтобы выделить; кнопки ⟳ и 🗑 сверху'))+COMP[c.type].draw(c,st,sm)+'</g>';
   });
   if(!mini){
     cs.forEach(c=>COMP[c.type].terms.forEach((t,i)=>{
@@ -673,6 +737,8 @@ function render(){
     hint.innerHTML='Свободная игра! Перетаскивай любые детали ←<br>и соединяй <b>кружочки</b> проводами.';
   }else hint.classList.add('hidden');
   updateTools();
+  if(sim.closed&&!prevClosed&&!sim.short){sDing();toast('⚡ Цепь замкнута — ток побежал!');}
+  prevClosed=sim.closed;
   if(sim.short&&!prevShort){sSpark();toast('🔥 Короткое замыкание! Убери лишний провод, батарейка перегрелась!');}
   prevShort=sim.short;
 }
@@ -1036,6 +1102,131 @@ function saveEnergySVG(){
   return s;
 }
 
+/* ---------- теория: электричество дома ---------- */
+function homeSVG(){
+  return '<svg viewBox="0 0 340 200">'
+   +E('path',{d:'M150 70 L240 70 L240 172 L150 172 Z',fill:'#fff8e1',stroke:'#8d6e63','stroke-width':3})
+   +E('path',{d:'M142 72 L195 30 L248 72 Z',fill:'#ff8a65',stroke:'#bf5f3f','stroke-width':3,'stroke-linejoin':'round'})
+   +E('rect',{x:168,y:112,width:26,height:60,rx:3,fill:'#a1887f',stroke:'#5d4037','stroke-width':2.5})
+   +E('rect',{x:205,y:96,width:26,height:20,rx:4,fill:'#fff',stroke:'#546e7a','stroke-width':2.5})
+   +E('circle',{cx:214,cy:106,r:3,fill:'#37474f'})+E('circle',{cx:222,cy:106,r:3,fill:'#37474f'})
+   +E('text',{x:218,y:136,'font-size':10,'text-anchor':'middle',fill:'#51646e'},'розетка')
+   +E('rect',{x:155,y:84,width:22,height:17,rx:3,fill:'#eceff1',stroke:'#546e7a','stroke-width':2.5})
+   +E('text',{x:166,y:97,'font-size':10,'text-anchor':'middle','font-weight':'bold',fill:'#d84315'},'А')
+   +E('text',{x:166,y:78,'font-size':10,'text-anchor':'middle',fill:'#51646e'},'счётчик')
+   +E('rect',{x:56,y:88,width:56,height:36,rx:6,fill:'#fff',stroke:'#546e7a','stroke-width':3})
+   +E('path',{d:'M66 106 h10 l4 -12 l6 22 l4 -10 h16',stroke:'#ef476f','stroke-width':3,fill:'none','stroke-linecap':'round','stroke-linejoin':'round'})
+   +E('text',{x:84,y:140,'font-size':10,'text-anchor':'middle',fill:'#51646e'},'предохранитель')
+   +E('path',{d:'M20 60 H90 Q100 60 100 70 V120 H150',fill:'none',stroke:'#90a4ae','stroke-width':5,'stroke-linecap':'round'})
+   +E('text',{x:16,y:40,'font-size':12,'font-weight':'bold',fill:'#41545e'},'от улицы — 220 В')
+   +E('text',{x:195,y:194,'font-size':11,'text-anchor':'middle',fill:'#51646e'},'провода прячут в стены, розетки заземляют')
+   +'</svg>';
+}
+/* ---------- теория: статическое электричество ---------- */
+function staticSVG(){
+  let bits='';
+  for(let i=0;i<5;i++)bits+=E('rect',{x:52+i*24,y:118+((i%2)*10),width:11,height:7,rx:1,fill:'#fff',stroke:'#78909c','stroke-width':1.5,transform:'rotate('+(i*21-36)+' '+(57+i*24)+' 121)'});
+  return '<svg viewBox="0 0 340 190">'
+   +E('text',{x:85,y:32,'font-size':13,'font-weight':'bold','text-anchor':'middle',fill:'#7b1fa2'},'расчёска и бумажки')
+   +E('rect',{x:48,y:58,width:58,height:15,rx:6,fill:'#ab47bc',stroke:'#6a1b9a','stroke-width':2.5})
+   +E('rect',{x:100,y:60,width:28,height:11,rx:4,fill:'#8e24aa',stroke:'#6a1b9a','stroke-width':2.5})
+   +E('path',{d:'M56 73 v14 M67 73 v16 M78 73 v14 M89 73 v16 M100 73 v14',stroke:'#6a1b9a','stroke-width':3,'stroke-linecap':'round'})
+   +E('path',{d:'M104 62 q16 -10 24 2 M106 68 q13 -2 20 8',stroke:'#ba68c8','stroke-width':2,fill:'none','stroke-dasharray':'3 3'})
+   +bits
+   +E('text',{x:85,y:162,'font-size':10.5,'text-anchor':'middle',fill:'#51646e'},'потёр — и расчёска притянула бумажки!')
+   +E('text',{x:255,y:32,'font-size':13,'font-weight':'bold','text-anchor':'middle',fill:'#7b1fa2'},'шарик и волосы')
+   +E('circle',{cx:255,cy:100,r:38,fill:'#ef5350',stroke:'#b71c1c','stroke-width':3,opacity:0.92})
+   +E('path',{d:'M243 66 q-6 -12 0 -20 M255 60 q-2 -14 8 -18 M269 66 q6 -12 0 -20',stroke:'#4a148c','stroke-width':2.5,fill:'none','stroke-linecap':'round'})
+   +E('text',{x:255,y:162,'font-size':10.5,'text-anchor':'middle',fill:'#51646e'},'натёртый шарик «липнет» к волосам')
+   +'</svg>';
+}
+/* ---------- теория: живые батарейки ---------- */
+function natureSVG(){
+  let z='';
+  for(let i=0;i<3;i++)z+=E('path',{d:'M'+(146+i*16)+' 76 l-6 12 h8 l-6 12',stroke:'#ffd54f','stroke-width':3,fill:'none','stroke-linecap':'round','stroke-linejoin':'round',class:'rays'});
+  return '<svg viewBox="0 0 340 190">'
+   +E('text',{x:88,y:30,'font-size':13,'font-weight':'bold','text-anchor':'middle',fill:'#00838f'},'электрический угорь')
+   +E('ellipse',{cx:88,cy:95,rx:62,ry:26,fill:'#8d6e63',stroke:'#4e342e','stroke-width':3})
+   +E('path',{d:'M146 95 q26 -16 30 2 q3 14 -14 12',fill:'none',stroke:'#4e342e','stroke-width':3})
+   +E('circle',{cx:44,cy:88,r:3.5,fill:'#263238'})
+   +E('path',{d:'M60 78 l7 -9 l7 9 M82 76 l7 -9 l7 9',stroke:'#ffd54f','stroke-width':3,fill:'none','stroke-linecap':'round','stroke-linejoin':'round'})
+   +z
+   +E('text',{x:88,y:152,'font-size':10.5,'text-anchor':'middle',fill:'#51646e'},'до 860 вольт — как 70 батареек!')
+   +E('text',{x:258,y:30,'font-size':13,'font-weight':'bold','text-anchor':'middle',fill:'#00838f'},'твои нервы')
+   +E('circle',{cx:258,cy:88,r:20,fill:'#ffcc80',stroke:'#e65100','stroke-width':3})
+   +E('path',{d:'M276 84 q22 -10 30 6 M276 94 q24 4 30 20 M266 106 q4 22 -8 32',stroke:'#e65100','stroke-width':3,fill:'none','stroke-linecap':'round'})
+   +E('path',{d:'M280 76 l8 -8 M284 86 l10 -4',stroke:'#ffd54f','stroke-width':3,'stroke-linecap':'round'})
+   +E('text',{x:258,y:152,'font-size':10.5,'text-anchor':'middle',fill:'#51646e'},'мозг говорит с мышцами током!')
+   +'</svg>';
+}
+/* ---------- теория: аккумуляторы ---------- */
+function accuSVG(){
+  const cyc='M52 92 h70 q14 0 14 -14 v-18 q0 -14 14 -14 h66';
+  return '<svg viewBox="0 0 340 180">'
+   +E('rect',{x:26,y:68,width:26,height:48,rx:6,fill:'#90a4ae',stroke:'#546e7a','stroke-width':3})
+   +E('rect',{x:52,y:58,width:222,height:68,rx:12,fill:'#ffd54f',stroke:'#a07600','stroke-width':3.5})
+   +E('text',{x:74,y:102,'font-size':30,fill:'#1565c0','font-weight':'bold','font-family':'Arial'},'−')
+   +E('text',{x:234,y:100,'font-size':26,fill:'#c62828','font-weight':'bold','font-family':'Arial'},'+')
+   +E('path',{d:cyc,fill:'none',stroke:'#b2dfdb','stroke-width':5,'stroke-linecap':'round','stroke-dasharray':'1 9'})
+   +flowDotsPath(cyc,{color:'#2fb46f',r:4.5,per:3,dur:2.2})
+   +E('text',{x:170,y:28,'font-size':12,'font-weight':'bold','text-anchor':'middle',fill:'#00695c'},'зарядка = обратная химическая реакция')
+   +E('text',{x:170,y:158,'font-size':11,'text-anchor':'middle',fill:'#51646e'},'заряжаем — ток вгоняем внутрь; работаем — ток выгоняем наружу')
+   +'</svg>';
+}
+/* ---------- теория: зелёная энергия ---------- */
+function greenSVG(){
+  return '<svg viewBox="0 0 340 190">'
+   +E('circle',{cx:54,cy:42,r:20,fill:'#ffd54f',stroke:'#ff9f1c','stroke-width':3,class:'rays'})
+   +E('rect',{x:24,y:94,width:68,height:38,rx:4,fill:'#1565c0',stroke:'#0d3c78','stroke-width':3})
+   +E('path',{d:'M28 103 h60 M28 113 h60 M28 123 h60 M43 96 v34 M58 96 v34 M73 96 v34',stroke:'#90caf9','stroke-width':1.6})
+   +E('text',{x:58,y:152,'font-size':11,'font-weight':'bold','text-anchor':'middle',fill:'#17546b'},'солнце')
+   +E('line',{x1:170,y1:122,x2:170,y2:62,stroke:'#78909c','stroke-width':5})
+   +'<g transform="translate(170,60)"><g class="rotor2">'
+   +E('path',{d:'M0 0 Q10 -22 0 -34 Q-10 -22 0 0 Z',fill:'#eceff1',stroke:'#546e7a','stroke-width':2.5})
+   +'<g transform="rotate(120)">'+E('path',{d:'M0 0 Q10 -22 0 -34 Q-10 -22 0 0 Z',fill:'#eceff1',stroke:'#546e7a','stroke-width':2.5})+'</g>'
+   +'<g transform="rotate(240)">'+E('path',{d:'M0 0 Q10 -22 0 -34 Q-10 -22 0 0 Z',fill:'#eceff1',stroke:'#546e7a','stroke-width':2.5})+'</g>'
+   +E('circle',{r:4.5,fill:'#37474f'})
+   +'</g></g>'
+   +E('text',{x:170,y:152,'font-size':11,'font-weight':'bold','text-anchor':'middle',fill:'#17546b'},'ветер')
+   +E('path',{d:'M248 132 h70 v-22 h-70 Z',fill:'#8d6e63',stroke:'#5d4037','stroke-width':2.5})
+   +E('path',{d:'M258 110 q6 -26 14 -32 l10 32 Z',fill:'#4fc3f7',stroke:'#0288d1','stroke-width':2.5})
+   +E('text',{x:283,y:152,'font-size':11,'font-weight':'bold','text-anchor':'middle',fill:'#17546b'},'вода')
+   +'</svg>';
+}
+/* ---------- теория: сверхпроводники ---------- */
+function supercondSVG(){
+  return '<svg viewBox="0 0 340 180">'
+   +E('text',{x:230,y:30,'font-size':22,'font-weight':'bold','text-anchor':'middle',fill:'#1565c0','font-family':'Arial'},'0 Ом!')
+   +E('rect',{x:70,y:48,width:200,height:44,rx:20,fill:'#e3f2fd',stroke:'#1565c0','stroke-width':3.5})
+   +E('rect',{x:90,y:60,width:42,height:17,rx:4,fill:'#90caf9',stroke:'#1565c0','stroke-width':2})
+   +E('rect',{x:140,y:60,width:42,height:17,rx:4,fill:'#90caf9',stroke:'#1565c0','stroke-width':2})
+   +E('circle',{cx:112,cy:94,r:6,fill:'#37474f'})+E('circle',{cx:230,cy:94,r:6,fill:'#37474f'})
+   +E('path',{d:'M60 114 q10 -10 20 0 M110 114 q10 -10 20 0 M160 114 q10 -10 20 0 M210 114 q10 -10 20 0',stroke:'#90a4ae','stroke-width':2.5,fill:'none'})
+   +E('rect',{x:40,y:130,width:260,height:14,rx:7,fill:'#cfd8dc',stroke:'#546e7a','stroke-width':3})
+   +E('text',{x:170,y:124,'font-size':12,'font-weight':'bold','text-anchor':'middle',fill:'#c62828'},'магнитный подъём — поезд парит над рельсом!')
+   +E('text',{x:170,y:168,'font-size':11,'text-anchor':'middle',fill:'#51646e'},'сверхпровода охлаждают почти до −270 °C')
+   +'</svg>';
+}
+/* ---------- теория: как крутится мотор ---------- */
+function motorHowSVG(){
+  return '<svg viewBox="0 0 340 190">'
+   +E('rect',{x:40,y:52,width:36,height:84,rx:8,fill:'#ef5350',stroke:'#b71c1c','stroke-width':3})
+   +E('text',{x:58,y:102,'font-size':18,'font-weight':'bold','text-anchor':'middle',fill:'#fff','font-family':'Arial'},'N')
+   +E('rect',{x:264,y:52,width:36,height:84,rx:8,fill:'#42a5f5',stroke:'#1565c0','stroke-width':3})
+   +E('text',{x:282,y:102,'font-size':18,'font-weight':'bold','text-anchor':'middle',fill:'#fff','font-family':'Arial'},'S')
+   +'<g transform="translate(170,94)">'
+   +E('ellipse',{rx:52,ry:30,fill:'none',stroke:'#ff9f1c','stroke-width':6})
+   +'<g class="rotor2">'+E('line',{x1:-52,y1:0,x2:52,y2:0,stroke:'#ff9f1c','stroke-width':6,'stroke-linecap':'round'})+'</g>'
+   +E('circle',{r:7,fill:'#6d4c41'})
+   +'</g>'
+   +E('path',{d:'M118 94 H76 M222 94 H264',stroke:'#37474f','stroke-width':3.5})
+   +flowDotsPath('M76 94 H118',{color:'#ef476f',r:4,per:2,dur:1.4})
+   +flowDotsPath('M222 94 H264',{color:'#ef476f',r:4,per:2,dur:1.4})
+   +E('text',{x:170,y:40,'font-size':12.5,'font-weight':'bold','text-anchor':'middle',fill:'#e65100'},'магниты толкают катушку — она крутится!')
+   +E('text',{x:170,y:170,'font-size':11,'text-anchor':'middle',fill:'#51646e'},'«переключатель» внутри мотора разворачивает ток вовремя')
+   +'</svg>';
+}
+
 const COMPINFO={
  battery:'Источник тока. Из «+» ток выходит, в «−» возвращается.',
  lamp:'Светится, когда через неё бежит ток. Полярность не важна.',
@@ -1046,6 +1237,54 @@ const COMPINFO={
  led:'Яркий индикатор. Светится только при правильной полярности!',
  resistor:'Специально ограничивает ток, чтобы другие детали не перегрелись.'
 };
+
+/* ================= интерактивная викторина ================= */
+const QUIZ=[
+ {q:'Что нужно, чтобы по цепи побежал ток?',
+  opts:['Замкнутый путь от «+» к «−»','Очень длинные провода','Много лампочек','Большая коробка для деталей'],a:0,
+  why:'Ток бежит только по замкнутой цепи — от плюса к минусу. Разрыв — и ток останавливается.'},
+ {q:'Что делает выключатель?',
+  opts:['Создаёт ток','Хранит электричество','Превращает ток в свет','Размыкает и замыкает цепь'],a:3,
+  why:'Выключатель — «калитка» для тока: замкнул — ток бежит, разомкнул — остановился.'},
+ {q:'Две лампочки включены ПАРАЛЛЕЛЬНО. Что будет, если одну выкрутить?',
+  opts:['Погаснет вторая','Сгорит батарейка','Вторая продолжит гореть','Погаснет всё сразу'],a:2,
+  why:'При параллельном соединении у тока две дорожки: одна лампа погасла — по второй ток бежит дальше.'},
+ {q:'Светодиод не светится. Что попробовать первым делом?',
+  opts:['Позвать кота','Поменять полярность (перевернуть)','Смочить пальцы','Покрутить лампочку'],a:1,
+  why:'Светодиоду важна полярность: ток должен входить в ножку «+». Перевернул — и вуаля!'},
+ {q:'Что такое короткое замыкание?',
+  opts:['Когда цепь слишком короткая','Когда провода красные','Когда ток идёт напрямую от «+» к «−», минуя детали','Когда батарейка совсем новая'],a:2,
+  why:'«Короткий» путь — без нагрузки. Батарейка перегревается, это опасно!'},
+ {q:'Зачем нужен резистор?',
+  opts:['Чтобы ток бежал быстрее','Чтобы ограничить ток и защитить нежные детали','Чтобы цепь была красивее','Чтобы батарейка садилась быстрее'],a:1,
+  why:'Резистор — узкий мостик: он не даёт току стать слишком сильным и бережёт, например, светодиод.'},
+];
+let quizScore=0;
+function quizHTML(){
+  return '<div class="quizscore">Верно: <b id="quizScore">0</b> из '+QUIZ.length+'</div>'+
+    QUIZ.map((q,qi)=>'<div class="quizq" data-q="'+qi+'"><div class="quizq-t">'+(qi+1)+'. '+q.q+'</div>'+
+      q.opts.map((o,oi)=>'<button class="quizopt" data-o="'+oi+'">'+o+'</button>').join('')+
+      '<div class="quizwhy hidden">💡 '+q.why+'</div></div>').join('');
+}
+function wireQuiz(){
+  quizScore=0;
+  document.querySelectorAll('.quizq').forEach(box=>{
+    box.querySelectorAll('.quizopt').forEach(b=>b.onclick=()=>{
+      if(box.dataset.done)return;
+      box.dataset.done='1';
+      const qi=+box.dataset.q, oi=+b.dataset.o, right=QUIZ[qi].a===oi;
+      box.querySelectorAll('.quizopt').forEach(x=>{
+        x.disabled=true;
+        if(+x.dataset.o===QUIZ[qi].a)x.classList.add('right');
+      });
+      if(right){quizScore++;sDing();}
+      else{b.classList.add('wrong');tone(160,0.2,'sawtooth',0.08);}
+      box.querySelector('.quizwhy').classList.remove('hidden');
+      $('#quizScore').textContent=quizScore;
+      if(quizScore===QUIZ.length){confetti(60);sWin();}
+    });
+  });
+}
 
 const THEORY=[
  {icon:'💧',title:'Что такое ток',
@@ -1200,6 +1439,55 @@ const THEORY=[
       '<li><b>⚡ Режим ожидания (standby)</b> у телевизора, компьютера и приставки за год «съедает» электричества как целый месяц работы лампочки.</li>'+
     '</ul>'+
     '<div class="factbox">🌍 <b>Задумайся:</b> если каждый житель Земли будет выключать свет, выходя из комнаты, мы сэкономим столько электричества, сколько вырабатывает целая крупная электростанция. Экономить — это несложно и очень важно!</div>'},
+ /* ============ новые разделы: ещё больше теории! ============ */
+ {icon:'🏠',title:'Электричество дома',
+  html:'<p>Электричество приходит в квартиру по проводам от электростанции. Прежде чем разойтись по розеткам, оно проходит через важных «сторожей»:</p>'+
+    '<div class="demo">'+homeSVG()+'</div>'+
+    '<ul class="safelist">'+
+    '<li><b>Счётчик</b> — считает, сколько электричества израсходовала семья. Именно по его цифрам оплачивают электроэнергию.</li>'+
+    '<li><b>Предохранитель (или автомат)</b> — «слабое звено»: если ток вдруг станет слишком большим (например, при коротком замыкании), он мгновенно размыкает цепь и спасает проводку от пожара.</li>'+
+    '<li><b>Заземление</b> — третий контакт в розетке. Если в приборе что-то сломалось, оно уводит опасный ток в землю мимо человека.</li></ul>'+
+    '<div class="factbox">🏠 <b>Знаешь ли ты?</b> Проводку делают из меди, а не из золота — хотя золото проводит ток даже лучше! Просто золото стоит слишком дорого даже для очень богатых электриков.</div>'},
+ {icon:'🎈',title:'Статическое электричество',
+  html:'<p>Трёшь о волосы расчёску или надувной шарик — и они начинают <b>притягивать</b> лёгкие предметы и поднимать волосы дыбом! Это <b>статическое электричество</b>.</p>'+
+    '<div class="demo">'+staticSVG()+'</div>'+
+    '<p>При трении одни материалы отдают микроскопические частички, другие забирают. Заряды накапливаются и сидят на месте («стоят»), поэтому тока пока нет. Но стоит поднести руку — искра!</p>'+
+    '<div class="factbox">⚡ <b>Статика — старшая сестра молнии!</b> Молния — это тот же заряд, накопленный трением, только между облаком и землёй. А зимняя искра от дверной ручки — маленькая молния в несколько сантиметров.</div>'},
+ {icon:'🐟',title:'Живые батарейки',
+  html:'<p>Электричество вырабатывают не только станции — некоторые животные носят его <b>в себе</b>!</p>'+
+    '<div class="demo">'+natureSVG()+'</div>'+
+    '<ul class="safelist">'+
+    '<li><b>Электрический угорь</b> живёт в реках Южной Америки. Его тело — настоящая биологическая батарейка из тысяч «элементов»! Разряд до <b>860 вольт</b> оглушает рыбу — так он охотится и защищается.</li>'+
+    '<li><b>Электрический скат</b> — «подводный электрошокер» тёплых морей.</li>'+
+    '<li><b>Ты сам</b> — тоже электрическое существо! Мозг посылает мышцам команды короткими электрическими импульсами. Поэтому бьётся сердце и двигаются руки.</li></ul>'},
+ {icon:'🔁',title:'Аккумуляторы',
+  html:'<p>Обычную батарейку выбрасывают, когда она «села». А <b>аккумулятор</b> можно заряжать снова и снова — сотни и даже тысячи раз!</p>'+
+    '<div class="demo">'+accuSVG()+'</div>'+
+    '<p>Секрет в том, что реакция внутри <b>обратимая</b>: работая, аккумулятор отдаёт заряды; заряжаясь — принимает их обратно. Телефоны, ноутбуки, электромобили и даже космические станции питаются аккумуляторами.</p>'+
+    '<div class="factbox">📱 <b>Правило здоровья аккумулятора:</b> держи заряд примерно между 20% и 80%. Постоянные зарядки «до 100 и до нуля» старят его быстрее.</div>'},
+ {icon:'🌱',title:'Зелёная энергия',
+  html:'<p>Электростанции на угле и газе загрязняют воздух. Поэтому человечество учится брать электричество прямо из природы:</p>'+
+    '<div class="demo">'+greenSVG()+'</div>'+
+    '<ul class="safelist">'+
+    '<li><b>Солнце</b> — солнечные панели превращают свет в ток. Космические спутники работают на них десятилетиями!</li>'+
+    '<li><b>Ветер</b> — ветряки раскручивают огромные генераторы.</li>'+
+    '<li><b>Вода</b> — плотины ГЭС: вода падает вниз и крутит турбины, как колесо мельницы.</li></ul>'+
+    '<div class="factbox">☀️ <b>Рекордсмен:</b> за один час Земля получает от Солнца столько энергии, сколько всё человечество тратит за целый год. Осталось только собрать её!</div>'},
+ {icon:'🚄',title:'Сверхпроводники',
+  html:'<p>Обычные провода всегда немного <b>сопротивляются</b> току и греются — часть энергии теряется впустую. Но есть чудо-материалы: при сильном холоде их сопротивление падает до <b>нуля</b>! Они называются <b>сверхпроводниками</b>.</p>'+
+    '<div class="demo">'+supercondSVG()+'</div>'+
+    '<p>Ещё чудеснее: сверхпроводник <b>вытесняет магнитное поле</b> — магнит просто парит над ним! На этом держатся поезда на магнитной подушке: они не касаются рельсов и летят со скоростью самолёта.</p>'+
+    '<div class="factbox">🧊 <b>Почему всё не делают из сверхпроводников?</b> Их нужно охлаждать почти до −270 °C жидким гелием. Учёные ищут материалы, которые сверхпроводят при комнатной температуре, — это одна из главных загадок физики!</div>'},
+ {icon:'⚙️',title:'Как крутится мотор',
+  html:'<p>Почему моторчик вообще крутится? Внутри него — две магнитные «стенки» и <b>катушка из провода</b> между ними.</p>'+
+    '<div class="demo">'+motorHowSVG()+'</div>'+
+    '<ul class="safelist">'+
+    '<li>Ток в катушке превращает её в <b>электромагнит</b> с северным и южным полюсами.</li>'+
+    '<li>Постоянные магниты тянут и толкают катушку — она поворачивается, как стрелка компаса.</li>'+
+    '<li>Хитрость: в нужный момент специальный <b>коллектор</b> переворачивает ток в катушке — и магниты толкают её дальше! Так и рождается вращение.</li></ul>'+
+    '<div class="factbox">🔄 <b>А в обратную сторону?</b> Тот же моторчик, если покрутить его рукой, вырабатывает ток! Так устроены динамо-фонари и велосипедные фонари.</div>'},
+ {icon:'🎓',title:'Проверь себя!',quiz:true,
+  html:'<p>Маленький экзамен юного электрика! Отвечай кликом — за правильные ответы будет сюрприз 🎉</p>'+quizHTML()},
 ];
 let theoryPage=0;
 function openTheory(i){
@@ -1213,6 +1501,7 @@ function openTheory(i){
   $('#tPrev').onclick=debounceBtn(()=>openTheory((theoryPage+THEORY.length-1)%THEORY.length), 300);
   $('#tNext').onclick=debounceBtn(()=>openTheory((theoryPage+1)%THEORY.length), 300);
   $('#tClose').onclick=closeModal;
+  if(p.quiz)wireQuiz();
 }
 
 /* ================= цели уровней ================= */
@@ -1281,10 +1570,70 @@ function checkGoal(){
     case 8:{
       const sm=simulate(cs,S.wires,closedOpts);
       if(!lampsAllOn(sm,cs))return{ok:false,msg:'Лампочка не светится — проверь цепь.'};
-      if(!sm.dim)return{ok:false,msg:'Резистор не в цепи с лампочкой! Поставь его прямо в цепочку: «+» → резистор → лампочка → «−».'};
+      const rs=cs.filter(c=>c.type==='resistor'&&sm.on[c.id]&&sm.on[c.id].on);
+      if(!rs.length)return{ok:false,msg:'Резистор не в цепи с лампочкой! Поставь его прямо в цепочку: «+» → резистор → лампочка → «−».'};
+      // Резистор засчитывается, только если он последовательно с лампой:
+      // «выкрутив» его, лампочка должна погаснуть
+      const ls=cs.filter(c=>c.type==='lamp');
+      const series=rs.some(r=>{
+        const sm2=simulate(cs,S.wires,Object.assign({},closedOpts,{unscrewed:new Set([r.id])}));
+        return ls.some(l=>!(sm2.on[l.id]&&sm2.on[l.id].on));
+      });
+      if(!series)return{ok:false,msg:'Резистор стоит не на пути тока к лампочке (например, в обходной ветке). Поставь его в саму цепочку с лампой!'};
+      return{ok:true};}
+    case 9:{
+      if(!cs.some(c=>c.type==='lamp'))return{ok:false,msg:'Добавь лампочку из панели слева!'};
+      if(!cs.some(c=>c.type==='bell'))return{ok:false,msg:'Добавь звонок из панели слева!'};
+      if(!cs.some(c=>c.type==='button'))return{ok:false,msg:'Добавь кнопку из панели слева!'};
+      const lamp=cs.find(c=>c.type==='lamp'), bell=cs.find(c=>c.type==='bell');
+      const bothOn=sm=>sm.on[lamp.id]&&sm.on[lamp.id].on&&sm.on[bell.id]&&sm.on[bell.id].on;
+      if(!bothOn(simulate(cs,S.wires,{buttonState:'pressed'})))
+        return{ok:false,msg:'При нажатой кнопке должны работать И лампочка, И звонок.'};
+      if(bothOn(simulate(cs,S.wires,{buttonState:'released'})))
+        return{ok:false,msg:'При отпущенной кнопке ничего не должно работать! Ток должен идти ЧЕРЕЗ кнопку.'};
+      // независимость веток: убираем звонок — лампа горит; убираем лампу — звонок звенит
+      const noBell=simulate(cs,S.wires,{buttonState:'pressed',unscrewed:new Set([bell.id])});
+      const noLamp=simulate(cs,S.wires,{buttonState:'pressed',unscrewed:new Set([lamp.id])});
+      if(!(noBell.on[lamp.id]&&noBell.on[lamp.id].on))
+        return{ok:false,msg:'Лампочка зависит от звонка — это последовательное соединение. Сделай две отдельные веточки после кнопки!'};
+      if(!(noLamp.on[bell.id]&&noLamp.on[bell.id].on))
+        return{ok:false,msg:'Звонок зависит от лампочки — это последовательное соединение. Сделай две отдельные веточки после кнопки!'};
+      return{ok:true};}
+    case 10:{
+      if(!cs.some(c=>c.type==='switch'))return{ok:false,msg:'Добавь выключатель из панели слева!'};
+      if(!cs.some(c=>c.type==='button'))return{ok:false,msg:'Добавь кнопку из панели слева!'};
+      const lamp=cs.find(c=>c.type==='lamp');
+      const lampOn=st=>simulate(cs,S.wires,st);
+      const onCC=lampOn({switchState:'closed',buttonState:'pressed'});
+      if(!(onCC.on[lamp.id]&&onCC.on[lamp.id].on))
+        return{ok:false,msg:'Лампочка не горит, даже когда выключатель включён и кнопка нажата. Проверь цепочку!'};
+      const onOC=lampOn({switchState:'open',buttonState:'pressed'});
+      if(onOC.on[lamp.id]&&onOC.on[lamp.id].on)
+        return{ok:false,msg:'Лампа горит при ВЫКЛЮЧЕННОМ выключателе! Ток должен идти ЧЕРЕЗ него, а не в обход.'};
+      const onCR=lampOn({switchState:'closed',buttonState:'released'});
+      if(onCR.on[lamp.id]&&onCR.on[lamp.id].on)
+        return{ok:false,msg:'Лампа горит БЕЗ нажатия кнопки! Ток должен идти ЧЕРЕЗ кнопку, а не в обход.'};
       return{ok:true};}
   }
   return{ok:true};
+}
+function diagnose(){
+  const cs=S.components;
+  if(!cs.some(c=>c.type==='battery'))return 'В схеме нет батарейки — без неё току негде взяться!';
+  if(sim.short)return 'Где-то «+» соединён с «−» напрямую, в обход всех деталей. Разорви этот провод!';
+  if(!sim.closed){
+    if(!S.wires.length)return 'Проводов пока нет. Потяни мышкой от кружочка-клеммы одной детали к клемме другой.';
+    const used=new Set();
+    S.wires.forEach(w=>{used.add(w.a.c+':'+w.a.t);used.add(w.b.c+':'+w.b.t);});
+    const dangling=cs.filter(c=>c.type!=='battery')
+      .filter(c=>COMP[c.type].terms.some((t,i)=>!used.has(c.id+':'+i)));
+    if(dangling.length)
+      return 'Цепь не замкнута: неподключённые клеммы у '+dangling.map(c=>COMP[c.type].name.toLowerCase()).join(', ')+'. Току нужен непрерывный путь от «+» до «−»!';
+    const sw=cs.find(c=>c.type==='switch'&&!c.props.closed);
+    if(sw)return 'Цепь собрана, но выключатель разомкнут — щёлкни по нему!';
+    return 'Цепь не замкнута в круг. Проверь, нет ли разрыва посередине — току некуда бежать.';
+  }
+  return null;
 }
 function runCheck(){
   const r=checkGoal();
@@ -1293,8 +1642,7 @@ function runCheck(){
     const fails=LV._fails||0;
     const stars=fails===0?3:(fails<=2?2:1);
     progress.stars[LV.n]=Math.max(progress.stars[LV.n]||0,stars);
-    if(LV.n<8)progress.unlocked=Math.max(progress.unlocked,LV.n+1);
-    else progress.unlocked=Math.max(progress.unlocked,9);
+    progress.unlocked=Math.max(progress.unlocked,Math.min(LV.n+1,LEVELS.length));
     saveProgress();
     showModal(
       '<h2>🎉 Ура! Уровень пройден!</h2>'+
@@ -1302,14 +1650,14 @@ function runCheck(){
       '<div class="factbox">🧠 <b>Знаешь ли ты?</b> '+(LV.fact||'')+'</div>'+
       '<p>'+(stars===3?'Идеально с первого раза! Ты настоящий электрик! ⚡':'Здорово! Попробуй ещё раз без ошибок — получишь больше звёзд!')+'</p>'+
       '<div class="btnrow"><button class="btn orange" id="mAgain">🔁 Ещё раз</button>'+
-      (LV.n<8?'<button class="btn green big" id="mNext">▶ Следующий уровень</button>'
-             :'<button class="btn green big" id="mNext">🛠 В песочницу!</button>')+'</div>');
+      (LEVELS[LV.n]?'<button class="btn green big" id="mNext">'+(LEVELS[LV.n].sandbox?'🛠 В песочницу!':'▶ Следующий уровень')+'</button>':'')+'</div>');
     $('#mAgain').onclick=debounceBtn(()=>{closeModal();startLevel(LV.n);});
     $('#mNext').onclick=debounceBtn(()=>{closeModal();startLevel(LV.n+1);});
   }else{
     LV._fails=(LV._fails||0)+1;sFail();
     const g=$('#goalcard');g.classList.remove('shake');void g.offsetWidth;g.classList.add('shake');
-    toast('🤔 '+r.msg);
+    const tip=diagnose();
+    toast('🤔 '+r.msg+(tip?'\n💡 '+tip:''));
   }
 }
 
@@ -1343,7 +1691,7 @@ function showIntro(n){
   $('#mGo').onclick=debounceBtn(()=>{closeModal();startLevel(n);});
 }
 function startLevel(n){
-  LV=LEVELS[n-1];LV._fails=0;
+  LV=LEVELS[n-1];LV._fails=0;LV._hintIdx=0;prevClosed=false;
   S.components=[];S.wires=[];S.sel=null;S.selWire=null;
   armed=false;placing=null;drag=null;
   document.querySelectorAll('.pal').forEach(x=>x.classList.remove('armed'));
@@ -1413,6 +1761,15 @@ window.addEventListener('pointermove',e=>{
   }
   if(drag)dragMove(e);
 });
+window.addEventListener('pointercancel',()=>{
+  if(placing){placing.ghost.remove();placing=null;}
+  if(drag){
+    if(drag.mode==='press'){const c=compById(drag.id);if(c)c.props.pressed=false;}
+    if(drag.mode==='wire'){svg.classList.remove('wiring');gTemp.innerHTML='';}
+    $('#wireTip').classList.remove('show');
+    drag=null;render();
+  }
+});
 window.addEventListener('pointerup',e=>{
   if(placing){
     placing.ghost.remove();
@@ -1452,7 +1809,7 @@ svg.addEventListener('pointerdown',e=>{
   if(cg){
     const c=compById(+cg.dataset.comp);if(!c)return;
     S.sel=c.id;S.selWire=null;audio();
-    if(c.type==='button'){c.props.pressed=true;drag={mode:'press',id:c.id};render();return;}
+    if(c.type==='button'){c.props.pressed=true;drag={mode:'press',id:c.id,dx:p.x-c.x,dy:p.y-c.y,sx:p.x,sy:p.y};render();return;}
     drag={mode:'comp',id:c.id,dx:p.x-c.x,dy:p.y-c.y,sx:p.x,sy:p.y,moved:false};
     render();return;
   }
@@ -1476,6 +1833,13 @@ function dragMove(e){
     const D=termDir(c,drag.from.t);
     const dir={x:p.x-A.x,y:p.y-A.y};const len=Math.hypot(dir.x,dir.y)||1;
     gTemp.innerHTML='<path class="wpath" d="'+wireD(A,D,{x:p.x,y:p.y},{x:dir.x/len,y:dir.y/len})+'" style="stroke:#ff9f1c" opacity="0.85"/>';
+  }else if(drag.mode==='press'){
+    // Тянули кнопку, а не нажимали? Отменяем нажатие и превращаем в перетаскивание
+    if(dist2(p.x,p.y,drag.sx,drag.sy)>6){
+      const c=compById(drag.id);if(c)c.props.pressed=false;
+      drag={mode:'comp',id:drag.id,dx:drag.dx,dy:drag.dy,sx:drag.sx,sy:drag.sy,moved:true};
+      requestRender();
+    }
   }
 }
 
@@ -1555,14 +1919,22 @@ soundIcon();
 
 $('#btnCheck').onclick=debounceBtn(()=>{audio();runCheck();}, 1200);
 
-$('#btnHint').onclick=debounceBtn(()=>{
-  sClick();
-  showModal('<h2>💡 Подсказка</h2>'+
-    '<div class="prof"><div class="face">🤖</div><p>'+LV.hint+'</p></div>'+
+function showHint(){
+  const hs=LV.hints&&LV.hints.length?LV.hints:['Посмотри на демо-схему в начале уровня и повтори её!'];
+  if(LV._hintIdx===undefined)LV._hintIdx=0;
+  const h=hs[LV._hintIdx%hs.length];
+  const shown=Math.min(LV._hintIdx+1,hs.length);
+  const more=LV._hintIdx+1<hs.length;
+  LV._hintIdx++;
+  showModal('<h2>💡 Подсказка '+shown+' из '+hs.length+'</h2>'+
+    '<div class="prof"><div class="face">🤖</div><p>'+h+'</p></div>'+
     (LV.demo?'<div class="demo">'+demoSVG(LV.demo)+'</div>':'')+
-    '<div class="btnrow"><button class="btn green" id="mOk">Понятно!</button></div>');
+    '<div class="btnrow">'+(more?'<button class="btn orange" id="mMore">💡 Ещё подсказку</button>':'')+
+    '<button class="btn green" id="mOk">Понятно!</button></div>');
+  if(more)$('#mMore').onclick=()=>{closeModal();setTimeout(showHint,60);};
   $('#mOk').onclick=closeModal;
-}, 800);
+}
+$('#btnHint').onclick=debounceBtn(()=>{sClick();showHint();}, 600);
 
 $('#btnTheory').onclick=debounceBtn(()=>{sClick();openTheory(0);}, 800);
 $('#btnTheory2').onclick=debounceBtn(()=>{sClick();openTheory(0);}, 800);
