@@ -1,2129 +1,1092 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>⚡ Юный электрик — собери схему!</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Закон Ома — урок для юных электриков</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💡</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;900&family=Nunito:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
-:root{
-  --ink:#2b3a42; --paper:#ffffff;
-  --blue:#118ab2; --green:#2fb46f; --orange:#ff9f1c; --red:#ef476f;
-  --card-shadow:0 6px 18px rgba(30,60,90,.14);
-}
-*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
-html,body{height:100%;}
-body{
-  margin:0; color:var(--ink);
-  font-family:'Comic Sans MS','Chalkboard SE','Segoe UI',Verdana,sans-serif;
-  background:linear-gradient(165deg,#8ed6ff 0%,#bdf0e2 45%,#fff3c9 100%);
-  user-select:none; overflow:hidden;
-}
-.hidden{display:none !important;}
-button{font-family:inherit;}
-
-/* ---------- общие кнопки ---------- */
-.btn{
-  border:none; border-radius:999px; padding:10px 20px; font-size:17px; font-weight:bold;
-  color:#fff; cursor:pointer; box-shadow:0 4px 0 rgba(0,0,0,.18); transition:transform .08s, opacity 0.2s;
-}
-.btn:active{transform:translateY(3px); box-shadow:0 1px 0 rgba(0,0,0,.18);}
-.btn.green{background:var(--green);}
-.btn.orange{background:var(--orange);}
-.btn.blue{background:var(--blue);}
-.btn.red{background:var(--red);}
-.btn.gray{background:#8aa0ad;}
-.btn.big{font-size:21px; padding:14px 30px;}
-.btn.round{width:46px; height:46px; padding:0; font-size:20px; line-height:1;}
-.btn:disabled, .btn.locked{opacity:.45; cursor:default; pointer-events:none;}
-
-/* ---------- меню ---------- */
-#menu{position:absolute; inset:0; overflow:auto; display:flex; flex-direction:column; align-items:center; padding:26px 14px 60px;}
-#menu h1{font-size:min(52px,8vw); margin:8px 0 2px; text-shadow:0 3px 0 #fff8, 0 6px 14px rgba(0,60,90,.25); letter-spacing:1px;}
-#menu .sub{font-size:19px; margin:0 0 20px; color:#1d5b73; background:#ffffffcc; padding:6px 18px; border-radius:999px;}
-.menurow{display:flex; gap:12px; flex-wrap:wrap; justify-content:center; margin:6px 0 22px;}
-#levels{display:flex; flex-wrap:wrap; gap:14px; justify-content:center; max-width:860px;}
-.lvl{
-  width:112px; height:118px; border-radius:20px; background:var(--paper); box-shadow:var(--card-shadow);
-  border:3px solid #ffffff; display:flex; flex-direction:column; align-items:center; justify-content:center;
-  cursor:pointer; transition:transform .1s; position:relative; font-size:15px;
-}
-.lvl:hover{transform:scale(1.06) rotate(-1deg);}
-.lvl .num{font-size:34px; font-weight:bold; color:var(--blue); line-height:1;}
-.lvl .name{font-size:12.5px; text-align:center; padding:0 4px; color:#51646e; line-height:1.15;}
-.lvl .stars{font-size:14px; letter-spacing:1px; margin-top:3px; min-height:18px;}
-.lvl.locked{filter:grayscale(1); opacity:.6; cursor:not-allowed;}
-.lvl.sandbox{background:linear-gradient(160deg,#fffbe6,#ffe9b3); width:240px; height:118px;}
-.lvl.sandbox .num{font-size:30px;}
-#menu .foot{margin-top:26px; font-size:14px; color:#40606e;}
-#menu .foot a{color:var(--blue); cursor:pointer; text-decoration:underline;}
-
-/* ---------- игровой экран ---------- */
-#game{position:absolute; inset:0; display:flex; flex-direction:column;}
-#topbar{
-  display:flex; align-items:center; gap:10px; padding:8px 12px;
-  background:#ffffffd9; border-bottom:3px solid #e3eef5;
-}
-#lvlname{font-size:19px; font-weight:bold; color:#17546b; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
-#main{flex:1; display:flex; gap:10px; padding:10px; min-height:0;}
-
-#palette{
-  width:138px; flex:none; background:#ffffffd9; border-radius:18px; padding:10px 8px;
-  display:flex; flex-direction:column; gap:8px; overflow-y:auto; box-shadow:var(--card-shadow);
-}
-#palette h3{margin:0 0 2px; font-size:14.5px; color:#51646e; text-align:center;}
-.pal{
-  background:#fff; border:3px solid #eaf3f8; border-radius:14px; padding:5px 4px 6px;
-  display:flex; flex-direction:column; align-items:center; cursor:grab; touch-action:none;
-}
-.pal:hover{border-color:var(--orange); background:#fff8ec;}
-.pal.armed{border-color:var(--green); background:#effaf2;}
-.pal svg{width:84px; height:48px; pointer-events:none;}
-.pal span{font-size:12.5px; color:#41545e; margin-top:1px; pointer-events:none;}
-
-#stage{flex:1; position:relative; min-width:0;}
-#canvas{
-  width:100%; height:100%; display:block; border-radius:18px; touch-action:none;
-  background-color:#fdfeff; box-shadow:var(--card-shadow);
-  background-image:radial-gradient(#dce9f1 2px, transparent 2.3px); background-size:26px 26px;
-}
-#canvas.wiring{cursor:crosshair;}
-#ghost{
-  position:fixed; z-index:95; pointer-events:none;
-  width:88px; transform:translate(-50%,-58%);
-  filter:drop-shadow(0 8px 14px rgba(30,60,90,.35));
-}
-#ghost svg{width:100%; height:auto; display:block;}
-#emptyHint{
-  position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
-  background:#ffffffeb; border-radius:18px; padding:14px 22px; text-align:center;
-  font-size:16.5px; color:#3c5460; box-shadow:var(--card-shadow); pointer-events:none; line-height:1.55;
-}
-#emptyHint b{color:var(--orange);}
-
-#goalcard{
-  position:absolute; right:12px; top:12px; width:250px; background:#ffffffee;
-  border-radius:16px; padding:12px 13px; box-shadow:var(--card-shadow); border:3px solid #ffe9b8;
-}
-#goalcard .gt{font-size:13.5px; font-weight:bold; color:#b06a00; margin-bottom:4px;}
-#goalcard .goaltext{font-size:14.5px; line-height:1.35; margin-bottom:10px;}
-#goalcard.shake{animation:shakeX .4s;}
-#goalcard .row{display:flex; gap:8px;}
-#goalcard .row .btn{flex:1; padding:9px 6px; font-size:15px;white-space:nowrap;}
-#goalcard .row #btnCheck{flex:2.2;}
-#goalcard .row #btnHint{flex:1;}
-@keyframes shakeX{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
-
-#comptools{
-  position:absolute; display:flex; gap:6px; transform:translate(-50%,-100%);
-  background:#263a46; border-radius:12px; padding:5px 7px; box-shadow:0 4px 12px rgba(0,0,0,.3);
-}
-#comptools button{
-  border:none; border-radius:9px; width:36px; height:34px; font-size:17px; cursor:pointer; background:#405967; color:#fff;
-}
-#comptools button:hover{background:var(--blue);}
-
-/* ---------- SVG схемы ---------- */
-.wpath{fill:none; stroke-width:5; stroke-linecap:round;}
-.whit{fill:none; stroke:transparent; stroke-width:16; cursor:pointer;}
-.wireg.selected .wpath{stroke:#ef476f !important; stroke-width:6.5;}
-.curr{fill:none; stroke:#ffffff; stroke-width:6.5; stroke-linecap:round; stroke-dasharray:0.1 13;}
-.curr.fw{animation:dashfw .55s linear infinite;}
-.curr.bw{animation:dashbw .55s linear infinite;}
-@keyframes dashfw{from{stroke-dashoffset:0;}to{stroke-dashoffset:-13.1;}}
-@keyframes dashbw{from{stroke-dashoffset:0;}to{stroke-dashoffset:13.1;}}
-.comp{cursor:grab;}
-.comp:active{cursor:grabbing;}
-.term{fill:#fff; stroke:#41545e; stroke-width:2.5; cursor:crosshair; transition:transform .12s; transform-box:fill-box; transform-origin:center;}
-.term-hit{fill:transparent;stroke:none;cursor:crosshair;}
-.term:hover{transform:scale(1.45);}
-#canvas.wiring .term{transform:scale(1.35); stroke:var(--orange);}
-.term.pos{stroke:#e53935;}
-.term.neg{stroke:#1e88e5;}
-.rotor{animation:spin 1s linear infinite; transform-box:fill-box; transform-origin:center;}
-@keyframes spin{to{transform:rotate(360deg);}}
-@keyframes spinrev{to{transform:rotate(-360deg);}}
-.rotor.rev{animation:spinrev 1s linear infinite; transform-box:fill-box; transform-origin:center;}
-.shakeon{animation:bellshake .35s ease-in-out infinite; transform-box:fill-box; transform-origin:center bottom;}
-@keyframes bellshake{0%,100%{transform:rotate(-6deg);}50%{transform:rotate(6deg);}}
-.rays{animation:raypulse 1.1s ease-in-out infinite;}
-@keyframes raypulse{0%,100%{opacity:.45;}50%{opacity:1;}}
-#tempwire{pointer-events:none;}
-
-/* ---------- модальные окна ---------- */
-#modal{position:fixed; inset:0; background:rgba(15,40,60,.5); display:flex; align-items:center; justify-content:center; z-index:50; padding:16px;}
-#modalCard{
-  background:#fff; border-radius:26px; padding:22px 26px; max-width:560px; width:100%;
-  box-shadow:0 20px 60px rgba(0,20,40,.4); text-align:center; max-height:92vh; overflow:auto;
-}
-#modalCard h2{margin:4px 0 10px; font-size:26px;}
-#modalCard .prof{display:flex; gap:14px; align-items:flex-start; text-align:left; margin-bottom:8px;}
-#modalCard .prof .face{font-size:52px; flex:none; animation:bob 2.4s ease-in-out infinite;}
-@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
-#modalCard .prof p{margin:0; font-size:16.5px; line-height:1.45;}
-#modalCard .demo{background:#f4fafd; border-radius:16px; padding:6px; margin:10px 0 4px; border:2px dashed #bcd8e6;}
-#modalCard .demo svg{width:100%; max-width:420px; display:block; margin:0 auto;}
-#modalCard .btnrow{display:flex; gap:10px; justify-content:center; margin-top:14px; flex-wrap:wrap;}
-.winstars{font-size:44px; letter-spacing:6px; margin:4px 0;}
-.winstars .off{filter:grayscale(1); opacity:.35;}
-
-/* ---------- метки полярности на клеммах ---------- */
-.plabel{font-size:16px;font-weight:bold;font-family:Arial,sans-serif;paint-order:stroke;stroke:#ffffff;stroke-width:3.5px;stroke-linejoin:round;pointer-events:none;}
-.plabel.pos{fill:#e53935;}
-.plabel.neg{fill:#1e88e5;}
-.plabel.any{fill:#78909c;font-size:15px;}
-#wireTip{
-  position:absolute;left:50%;bottom:14px;transform:translateX(-50%);
-  background:#263a46;color:#fff;padding:9px 18px;border-radius:14px;font-size:14.5px;
-  box-shadow:0 6px 18px rgba(0,0,0,.3);display:none;pointer-events:none;z-index:6;max-width:88%;text-align:center;line-height:1.4;
-}
-#wireTip.show{display:block;}
-#wireTip b{color:#ffd54f;}
-
-#toast{
-  position:fixed; left:50%; bottom:22px; transform:translateX(-50%);
-  background:#263a46; color:#fff; padding:11px 22px; border-radius:16px; font-size:16px;
-  box-shadow:0 8px 24px rgba(0,0,0,.35); z-index:60; max-width:min(520px,90vw); text-align:center; line-height:1.4;
-}
-.confp{position:fixed; top:-24px; z-index:80; pointer-events:none; animation:fall 2.8s linear forwards;}
-@keyframes fall{to{transform:translateY(110vh) rotate(720deg);}}
-
-/* ---------- Азбука электрика ---------- */
-.ttabs{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:4px 0 12px;max-height:130px;overflow-y:auto;padding:2px;}
-.ttab{border:2px solid #dceaf2;background:#fff;border-radius:999px;padding:6px 11px;font-size:12.5px;cursor:pointer;font-family:inherit;color:#41545e;font-weight:bold;}
-.ttab:hover{border-color:var(--blue);}
-.ttab.on{background:var(--blue);color:#fff;border-color:var(--blue);}
-.tpage{text-align:left;font-size:15.5px;line-height:1.55;}
-.tpage p{margin:8px 0;}
-.tpage .demo{margin:10px 0;}
-.tpage .demo svg{width:100%;max-width:430px;}
-.demorow{display:flex;gap:10px;justify-content:center;align-items:flex-start;flex-wrap:wrap;margin:10px 0;}
-.democol{flex:1;min-width:200px;text-align:center;}
-.democol .demo{margin:0 0 6px;padding:4px;}
-.cap{font-size:13px;color:#41545e;font-weight:bold;line-height:1.35;}
-.democol.bad .demo{border-color:#ffb3c1;background:#fff5f7;}
-.democol.good .demo{border-color:#b7e4c7;background:#f2fbf5;}
-.tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;}
-.tcard{background:#f4fafd;border:2px solid #dceaf2;border-radius:14px;padding:8px;text-align:center;font-size:12.5px;}
-.tcard svg{width:100%;height:54px;}
-.tcard b{display:block;font-size:13.5px;margin-top:2px;color:#17546b;}
-.tcard span{color:#51646e;line-height:1.3;display:block;margin-top:2px;}
-.warnbox{background:#fff0f3;border:2px solid #ffb3c1;border-radius:14px;padding:10px 14px;margin:10px 0;}
-.safelist{list-style:none;padding:0;margin:8px 0;}
-.safelist li{background:#f4fafd;border:2px solid #e3eef5;border-radius:14px;padding:9px 14px;margin:7px 0;font-size:15px;line-height:1.45;}
-.dict{margin:4px 0;}
-.dict dt{font-weight:bold;color:#17546b;margin-top:11px;font-size:15.5px;}
-.dict dd{margin:2px 0 0 0;font-size:14.5px;color:#41545e;line-height:1.5;}
-.factbox{background:#eef7fb;border:2px solid #cfe7f3;border-radius:14px;padding:10px 14px;margin:10px 0;font-size:14.5px;line-height:1.45;text-align:left;}
-.tnav{align-items:center;}
-.tcount{font-size:14px;color:#51646e;min-width:56px;}
-.rotor2{animation:spin 2.6s linear infinite;transform-box:fill-box;transform-origin:center;}
-
-#toast{white-space:pre-line;}
-.quizscore{font-size:15px;font-weight:bold;color:#17546b;margin:6px 0;}
-.quizq{background:#f4fafd;border:2px solid #dceaf2;border-radius:14px;padding:9px 12px;margin:9px 0;text-align:left;}
-.quizq-t{font-weight:bold;font-size:15px;color:#2b3a42;margin-bottom:6px;}
-.quizopt{display:block;width:100%;text-align:left;margin:5px 0;padding:8px 12px;border-radius:10px;border:2px solid #cfe0ea;background:#fff;font-size:14.5px;cursor:pointer;font-family:inherit;color:#2b3a42;transition:background .12s,border-color .12s;}
-.quizopt:hover:not(:disabled){border-color:var(--blue);background:#eef7fb;}
-.quizopt.right{background:#e7f8ee;border-color:var(--green);font-weight:bold;}
-.quizopt.wrong{background:#fdecec;border-color:var(--red);}
-.quizopt:disabled{cursor:default;}
-.quizwhy{font-size:13.5px;color:#41545e;margin-top:6px;background:#fff8e1;border-radius:8px;padding:6px 9px;}
-
-button:focus-visible,[tabindex]:focus-visible{outline:3px solid #ff9f1c;outline-offset:3px;}
-#modalCard{overscroll-behavior:contain;}
-@media (max-width:980px) and (min-width:721px){
-  #palette{width:122px;}
-  #goalcard{width:220px;}
-}
-@media (max-width:720px), (max-width:1000px) and (orientation:portrait){
-  #menu{padding:14px 8px 36px;}
-  #menu h1{font-size:min(40px,10vw);text-align:center;}
-  #menu .sub{font-size:15px;text-align:center;padding:6px 12px;}
-  .menurow{gap:8px;margin-bottom:16px;}
-  .menurow .btn{font-size:15px;padding:10px 14px;min-height:44px;}
-  #levels{gap:9px;}
-  .lvl{width:98px;height:108px;border-radius:16px;}
-  .lvl.sandbox{width:205px;height:108px;}
-  #topbar{gap:6px;padding:6px;}
-  #lvlname{font-size:15px;}
-  .btn.round{width:44px;height:44px;flex:none;}
-  #main{flex-direction:column;padding:6px;gap:6px;}
-  #palette{
-    width:auto;min-height:84px;max-height:none;flex:none;flex-direction:row;flex-wrap:nowrap;
-    gap:6px;padding:6px;overflow-x:auto;overflow-y:hidden;border-radius:14px;
-    scroll-snap-type:x proximity;overscroll-behavior-x:contain;
+  :root{
+    --paper:#FAF4E6; --card:#FFFDF6; --ink:#26221B; --ink-soft:#6B6355;
+    --u:#F2A007; --u-soft:#FBE9C4; --u-deep:#8F5E02;
+    --i:#18A78E; --i-soft:#CDEEE2; --i-deep:#0C6E5C;
+    --r:#E2593B; --r-soft:#F8D9CC; --r-deep:#A93A1F;
+    --ok:#3E9B4F; --bad:#D64545;
+    --line:rgba(38,34,27,.075);
+    --shadow:6px 7px 0 rgba(38,34,27,.12);
   }
-  #palette h3{display:none;}
-  .pal{flex:0 0 86px;min-width:0;padding:3px 2px 5px;border-radius:11px;scroll-snap-align:start;}
-  .pal svg{width:70px;height:40px;}
-  .pal span{font-size:12px;}
-  #stage{display:flex;flex-direction:column;min-height:0;}
-  #canvas{flex:1;min-height:0;height:auto;border-radius:14px;}
-  #goalcard{
-    position:relative;order:-1;top:auto;right:auto;width:100%;flex:none;
-    padding:7px 9px;margin-bottom:6px;border-radius:12px;border-width:2px;
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'Nunito',sans-serif; color:var(--ink); background-color:var(--paper);
+    background-image:linear-gradient(var(--line) 1px,transparent 1px),
+                     linear-gradient(90deg,var(--line) 1px,transparent 1px);
+    background-size:28px 28px; line-height:1.55; overflow-x:hidden;
   }
-  #goalcard .gt{font-size:12px;margin-bottom:2px;}
-  #goalcard .goaltext{font-size:13px;line-height:1.3;margin-bottom:6px;}
-  #goalcard .row .btn{min-height:40px;padding:7px 5px;font-size:14px;}
-  #emptyHint{max-width:90%;width:max-content;font-size:14px;padding:12px 16px;}
-  #wireTip{bottom:8px;font-size:12.5px;padding:8px 12px;}
-  .whit{stroke-width:28;}
-  #comptools button{width:44px;height:42px;font-size:19px;}
-  #modal{padding:9px;}
-  #modalCard{padding:16px 14px;border-radius:20px;max-height:94dvh;}
-  #modalCard h2{font-size:23px;}
-  #modalCard .prof{gap:8px;}
-  #modalCard .prof .face{font-size:40px;}
-  #modalCard .prof p{font-size:15px;}
-  .ttabs{max-height:112px;}
-  .ttab{padding:7px 10px;font-size:12px;}
-  .tpage{font-size:15px;}
-  .democol{min-width:140px;}
-  .tgrid{grid-template-columns:repeat(auto-fill,minmax(135px,1fr));}
-  #toast{bottom:12px;font-size:14px;padding:10px 16px;}
-}
-@media (max-height:560px) and (min-width:721px){
-  #topbar{padding:4px 8px;}
-  #main{padding:6px;gap:6px;}
-  #palette{width:112px;padding:6px;gap:5px;}
-  .pal{padding:2px;}
-  .pal svg{height:36px;}
-  #goalcard{top:7px;right:7px;width:215px;padding:8px 10px;}
-  #goalcard .goaltext{font-size:13px;margin-bottom:6px;}
-}
-@media (prefers-reduced-motion:reduce){
-  *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;scroll-behavior:auto !important;}
-}
+  [hidden]{display:none!important}
+  h1,h2,h3,.disp{font-family:'Unbounded',sans-serif; line-height:1.2}
+  .mono{font-family:'JetBrains Mono',monospace}
+  .wrap{max-width:1140px;margin:0 auto;padding:0 22px}
+  svg text{font-family:'Nunito',sans-serif}
+  .svg-disp{font-family:'Unbounded',sans-serif}
+  .svg-mono{font-family:'JetBrains Mono',monospace}
+
+  /* ── провод-прогресс сверху ── */
+  .powerline{position:fixed;top:0;left:12px;right:44px;height:12px;z-index:900;pointer-events:none}
+  .pl-wire{position:absolute;left:0;right:0;top:5px;height:3px;border-radius:3px;background:var(--ink);opacity:.22}
+  .pl-dot{position:absolute;left:0;top:1px;width:11px;height:11px;border-radius:50%;
+    background:var(--i);border:2px solid var(--ink);box-shadow:0 0 0 3px var(--paper)}
+  .pl-lamp{position:fixed;top:1px;right:8px;z-index:900;width:22px;pointer-events:none}
+  .pl-lamp .bulb{fill:var(--card);stroke:var(--ink);stroke-width:2;transition:fill .4s}
+  .pl-lamp.lit .bulb{fill:var(--u)}
+
+  /* ── герой ── */
+  .hero{padding:76px 0 64px}
+  .hero-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:44px;align-items:center}
+  .kicker{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:.82rem;
+    letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:16px}
+  h1{font-size:clamp(2.3rem,5.6vw,4rem);font-weight:900;margin-bottom:18px}
+  h1 mark{display:inline-block;background:var(--u);color:var(--ink);border:3px solid var(--ink);
+    border-radius:14px;padding:.02em .2em;transform:rotate(-2deg);box-shadow:var(--shadow)}
+  .lead{font-size:1.12rem;max-width:34em;color:#3d382e;margin-bottom:26px}
+  .formula-art{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:30px}
+  .fa-tile{width:78px;height:78px;display:grid;place-items:center;border:3px solid var(--ink);
+    border-radius:18px;background:var(--cs);font-family:'Unbounded',sans-serif;font-weight:900;
+    font-size:2.1rem;cursor:help;box-shadow:var(--shadow);transition:transform .18s}
+  .fa-tile:nth-child(1){transform:rotate(-3deg)} .fa-tile:nth-child(5){transform:rotate(3deg)}
+  .fa-tile:hover{transform:translateY(-5px) rotate(0deg)}
+  .fa-op{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:1.9rem}
+  .fa-hint{width:100%;font-size:.85rem;color:var(--ink-soft)}
+  .btn{display:inline-flex;align-items:center;gap:10px;background:var(--ink);color:var(--paper);
+    border:2.5px solid var(--ink);border-radius:14px;padding:13px 22px;font-family:'Nunito',sans-serif;
+    font-weight:800;font-size:1rem;cursor:pointer;box-shadow:4px 5px 0 rgba(38,34,27,.25);
+    text-decoration:none;transition:transform .15s,box-shadow .15s}
+  .btn:hover{transform:translate(-2px,-2px);box-shadow:6px 7px 0 rgba(38,34,27,.25)}
+  .btn:active{transform:translate(2px,3px);box-shadow:0 0 0 rgba(0,0,0,0)}
+  .btn.ghost{background:var(--card);color:var(--ink)}
+  .hero-scene{background:var(--card);border:3px solid var(--ink);border-radius:24px;
+    box-shadow:var(--shadow);padding:10px;cursor:pointer}
+  .hero-scene svg{display:block;width:100%;height:auto}
+  .hero-glow{opacity:0;transition:opacity .4s}
+  .hero-ray{opacity:0;transition:opacity .4s}
+  #heroSvg.on .hero-glow{opacity:.95} #heroSvg.on .hero-ray{opacity:1}
+  #heroSvg.on .hs-cold{opacity:0} .hs-cold{transition:opacity .4s}
+  #heroSvg.on #heroHint{opacity:0} #heroHint{transition:opacity .3s;animation:bob 1.6s ease-in-out infinite}
+  #togLever{transition:transform .18s ease;transform-box:view-box;transform-origin:312px 168px}
+  #heroSvg.on #togLever{transform:rotate(0deg)} #togLever{transform:rotate(-32deg)}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+
+  /* ── секции ── */
+  section{padding:84px 0 20px}
+  .sec-head{display:flex;gap:20px;align-items:flex-start;margin-bottom:36px}
+  .sec-num{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:1rem;
+    border:2.5px solid var(--ink);border-radius:12px;padding:8px 12px;background:var(--ns,var(--u-soft));
+    transform:rotate(-3deg);box-shadow:3px 4px 0 rgba(38,34,27,.15);flex:none}
+  .sec-head h2{font-size:clamp(1.45rem,3vw,2.05rem);font-weight:700;margin-bottom:6px}
+  .sec-head p{color:#4a4438;max-width:46em}
+
+  /* ── герои ── */
+  .hero-card{display:grid;grid-template-columns:.85fr 1.15fr;gap:34px;align-items:center;
+    background:var(--card);border:2.5px solid var(--ink);border-radius:24px;
+    box-shadow:var(--shadow);padding:30px 34px;margin-bottom:30px}
+  .hero-card.flip{grid-template-columns:1.15fr .85fr}
+  .hero-card.flip .hc-illu{order:2}
+  .hc-illu{background:var(--hc,var(--u-soft));border:2.5px solid var(--ink);border-radius:20px;
+    padding:14px;display:grid;place-items:center}
+  .hc-illu svg{width:100%;max-width:250px;height:auto}
+  .hc-tag{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:.78rem;
+    text-transform:uppercase;letter-spacing:.1em;color:var(--ink-soft);margin-bottom:8px}
+  .hero-card h3{font-size:1.35rem;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:12px}
+  .hc-letter{flex:none;width:52px;height:52px;display:grid;place-items:center;border:2.5px solid var(--ink);
+    border-radius:14px;background:var(--hc,var(--u-soft));font-family:'Unbounded',sans-serif;
+    font-weight:900;font-size:1.5rem;transform:rotate(-4deg)}
+  .hero-card p{margin-bottom:14px}
+  .chips{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+  .chip{border:2px solid var(--ink);border-radius:999px;padding:5px 13px;font-weight:800;font-size:.85rem;background:#fff}
+  .hc-didyou{border-left:5px solid var(--u);background:var(--paper);border-radius:0 12px 12px 0;
+    padding:10px 14px;font-size:.95rem}
+  .hero-card:nth-of-type(2) .hc-didyou{border-color:var(--i)}
+  .hero-card:nth-of-type(3) .hc-didyou{border-color:var(--r)}
+
+  /* ── термины ── */
+  .term{cursor:help;border-bottom:2.5px dashed rgba(38,34,27,.45);font-weight:700}
+  .term:hover{background:rgba(242,160,7,.18)}
+  #tooltip{position:fixed;z-index:1000;max-width:270px;background:var(--ink);color:var(--paper);
+    font-size:.86rem;line-height:1.45;padding:9px 13px;border-radius:11px;pointer-events:none;
+    opacity:0;transition:opacity .15s;font-weight:600}
+  #tooltip.show{opacity:1}
+  #tooltip::after{content:"";position:absolute;left:var(--ax,50%);bottom:-6px;width:12px;height:12px;
+    background:var(--ink);transform:translateX(-50%) rotate(45deg)}
+  #tooltip.below::after{bottom:auto;top:-6px}
+
+  /* ── лаборатория ── */
+  .lab-grid{display:grid;grid-template-columns:1.35fr .95fr;gap:28px;align-items:start}
+  .scene-card,.panel{background:var(--card);border:2.5px solid var(--ink);border-radius:24px;
+    box-shadow:var(--shadow);padding:18px}
+  .scene-card svg{width:100%;height:auto;display:block}
+  .scene-cap{font-size:.9rem;color:var(--ink-soft);margin-top:10px;text-align:center}
+  .wire-outer{stroke:var(--ink);stroke-width:11;fill:none;stroke-linejoin:round}
+  .wire-inner{stroke:#FFFDF6;stroke-width:6.5;fill:none;stroke-linejoin:round}
+  .node-plate{fill:var(--card);stroke:var(--ink);stroke-width:3}
+  .svg-label{font-weight:700;font-size:15.5px;fill:var(--ink)}
+  .flow-arrow{fill:var(--i);opacity:.85}
+  .safety{margin-top:22px;border:2.5px solid var(--r);background:var(--r-soft);border-radius:16px;
+    padding:13px 18px;font-weight:700;display:flex;gap:12px;align-items:center}
+  .safety svg{flex:none}
+  .panel-title{font-family:'Unbounded',sans-serif;font-weight:700;font-size:1.05rem;margin-bottom:18px}
+  .dials{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}
+  .dial-unit{border:2px solid var(--ink);border-radius:18px;padding:12px 8px 10px;text-align:center;background:#fff}
+  .dial-label{font-weight:800;font-size:.9rem;margin-bottom:6px}
+  .dial-svg{width:104px;height:104px;margin:0 auto;touch-action:none;cursor:grab;display:block}
+  .dial-svg:active{cursor:grabbing}
+  .dial-value{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:1.25rem;margin-top:4px}
+  .live-formula{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:1.28rem;
+    display:flex;align-items:center;gap:9px;flex-wrap:wrap;justify-content:center;
+    border:2px dashed var(--ink);border-radius:16px;padding:14px 12px;margin-bottom:18px;background:var(--paper)}
+  .lf-letter{font-family:'Unbounded',sans-serif;font-size:1.4rem}
+  .lf-val{border:2px solid;border-radius:10px;padding:3px 9px;font-size:1.05rem;background:#fff}
+  .prof-row{display:flex;gap:14px;align-items:flex-start}
+  .prof-ava{flex:none;width:64px;height:64px}
+  .bubble{position:relative;background:#fff;border:2.5px solid var(--ink);border-radius:16px;
+    padding:11px 15px;font-size:.95rem;flex:1;min-height:56px;transition:opacity .18s}
+  .bubble::after{content:"";position:absolute;left:-9px;top:22px;width:14px;height:14px;background:#fff;
+    border-left:2.5px solid var(--ink);border-bottom:2.5px solid var(--ink);transform:rotate(45deg)}
+
+  /* вода */
+  .water-card{margin-top:28px;background:var(--card);border:2.5px solid var(--ink);border-radius:24px;
+    box-shadow:var(--shadow);padding:22px 24px}
+  .water-card h3{font-size:1.15rem;margin-bottom:6px}
+  .water-card svg{width:100%;height:auto;display:block}
+  .pipe-wall{stroke:var(--ink);stroke-width:9;fill:none;stroke-linejoin:round}
+  .w-note{font-size:.9rem;color:var(--ink-soft);margin-top:8px}
+
+  /* ── треугольник ── */
+  .tri-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:30px;align-items:stretch}
+  .tri-scene{background:var(--card);border:2.5px solid var(--ink);border-radius:24px;box-shadow:var(--shadow);
+    padding:22px;display:grid;place-items:center}
+  .tri-scene svg{width:100%;max-width:380px;height:auto}
+  .tri-cell{cursor:pointer;transition:opacity .3s}
+  .tri-letter{font-family:'Unbounded',sans-serif;font-weight:900;font-size:58px;transition:opacity .3s;pointer-events:none}
+  .tri-q{font-family:'Unbounded',sans-serif;font-weight:900;font-size:36px;fill:var(--paper);opacity:0;transition:opacity .3s;pointer-events:none}
+  .tri-cap{text-align:center;font-size:.9rem;color:var(--ink-soft);margin-top:10px}
+  .tri-panel{background:var(--card);border:2.5px solid var(--ink);border-radius:24px;box-shadow:var(--shadow);padding:28px}
+  .tri-panel h3{font-size:1.2rem;margin-bottom:12px}
+  .tri-formula{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:1.7rem;
+    border:2px dashed var(--ink);border-radius:16px;padding:16px;text-align:center;margin:14px 0;background:var(--paper)}
+  .tri-panel p{margin-bottom:10px}
+  .tri-example{font-family:'JetBrains Mono',monospace;font-weight:700;background:var(--u-soft);
+    border:2px solid var(--ink);border-radius:12px;padding:9px 14px;display:inline-block}
+
+  /* ── тест ── */
+  .quiz-card{max-width:760px;margin:0 auto;background:var(--card);border:2.5px solid var(--ink);
+    border-radius:24px;box-shadow:var(--shadow);padding:30px 34px}
+  .q-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;gap:14px;flex-wrap:wrap}
+  .q-lamps{display:flex;gap:8px}
+  .q-lamp{width:24px}
+  .q-lamp .bulb{fill:var(--card);stroke:var(--ink);stroke-width:2;transition:fill .3s}
+  .q-lamp.lit .bulb{fill:var(--u)}
+  .q-count{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:.88rem;color:var(--ink-soft)}
+  .q-text{font-size:1.12rem;font-weight:600;margin-bottom:20px}
+  .tU{color:var(--u-deep)} .tI{color:var(--i-deep)} .tR{color:var(--r-deep)}
+  .q-answers{display:grid;gap:12px;margin-bottom:18px}
+  .q-ans{text-align:left;border:2.5px solid var(--ink);border-radius:14px;background:#fff;
+    padding:13px 18px;font-family:'Nunito',sans-serif;font-weight:800;font-size:1rem;cursor:pointer;
+    transition:transform .12s,background .2s;box-shadow:3px 4px 0 rgba(38,34,27,.14)}
+  .q-ans:not(:disabled):hover{transform:translate(-2px,-2px)}
+  .q-ans:disabled{cursor:default;opacity:.45}
+  .q-ans.good{background:#DFF2E1;border-color:var(--ok);opacity:1}
+  .q-ans.bad{background:#FBE3E3;border-color:var(--bad);opacity:1}
+  .q-foot{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+  .hint-btn{border:2.5px dashed var(--ink);background:transparent;border-radius:12px;padding:9px 16px;
+    font-family:'Nunito',sans-serif;font-weight:800;cursor:pointer}
+  .hint-btn:hover{background:var(--u-soft)}
+  .q-hint{background:var(--u-soft);border:2px dashed var(--u);border-radius:12px;padding:10px 15px;font-weight:700;max-width:100%}
+  .q-after{margin-top:20px}
+  .q-why{background:#E4F3E6;border:2.5px solid var(--ok);border-radius:14px;padding:13px 16px;
+    font-weight:600;margin-bottom:16px}
+  .q-final{text-align:center;padding:16px 0}
+  .qf-score{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:1.1rem;color:var(--ink-soft)}
+  .qf-title{font-family:'Unbounded',sans-serif;font-weight:900;font-size:1.7rem;margin:10px 0 14px;color:var(--u-deep)}
+  .qf-text{margin-bottom:20px}
+  .shake{animation:shake .4s}
+  @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
+  .spark{position:fixed;width:9px;height:9px;z-index:1100;pointer-events:none}
+
+  /* ── шпаргалка и футер ── */
+  .cheat{margin:70px auto 0;background:var(--ink);color:var(--paper);border-radius:24px;
+    padding:30px 34px;box-shadow:var(--shadow)}
+  .cheat h3{color:var(--paper);font-size:1.2rem;margin-bottom:14px}
+  .cheat-row{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:clamp(1.05rem,2.6vw,1.5rem);
+    display:flex;gap:10px 26px;flex-wrap:wrap;align-items:center}
+  .cheat-row .cu{color:#FFC64D}.cheat-row .ci{color:#4BD6BC}.cheat-row .cr{color:#FF8A66}
+  .cheat p{margin-top:12px;font-size:.95rem;color:#D8D2C4}
+  footer{padding:56px 22px 40px;text-align:center;color:var(--ink-soft);font-size:.92rem}
+  footer b{color:var(--ink)}
+
+  a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--i);outline-offset:4px}
+  .tri-cell:focus-visible{outline:none;stroke:var(--i);stroke-width:5;stroke-linejoin:round}
+  @media(max-width:980px){
+    .hero-grid,.lab-grid,.tri-grid{grid-template-columns:minmax(0,1fr)}
+    .hero-card,.hero-card.flip{grid-template-columns:minmax(0,1fr)}
+    .hc-body{min-width:0}
+    .hero-card.flip .hc-illu{order:0}
+    .hero{padding-top:56px}
+  }
+  @media(max-width:520px){
+    .wrap{padding:0 16px}
+    .hero{padding:56px 0 38px}
+    section{padding:64px 0 14px}
+    .hero-card,.quiz-card{padding:22px 18px}
+    .hero-card h3{flex-wrap:wrap}
+    .scene-card,.panel{padding:14px}
+    .dials{gap:10px}
+    .dial-svg{width:96px;height:96px}
+    .safety{align-items:flex-start;padding:13px 14px}
+    .cheat{padding:24px 20px}
+    .sec-head{gap:14px}
+  }
+  @media(prefers-reduced-motion:reduce){
+    *{animation:none!important;transition:none!important}
+  }
 </style>
  <link rel="stylesheet" type="text/css" href="/entensys-xscript/abl.css" /> </head>
 <body>
 
-<svg width="0" height="0" style="position:absolute">
-  <defs>
-    <filter id="blur5" x="-90%" y="-90%" width="280%" height="280%"><feGaussianBlur stdDeviation="5"/></filter>
-  </defs>
+<!-- провод-прогресс: электрон бежит по проводу, пока читаешь; в конце провод зажигает лампочку -->
+<div class="powerline"><div class="pl-wire"></div><div class="pl-dot" id="plDot"></div></div>
+<svg class="pl-lamp" id="plLamp" viewBox="0 0 24 34" aria-hidden="true">
+  <path class="bulb" d="M12 2a9 9 0 0 1 9 9c0 3.4-2 5.6-3.4 7.4-.8 1-1.1 2-1.2 3.1H7.6c-.1-1.1-.4-2.1-1.2-3.1C5 16.6 3 14.4 3 11a9 9 0 0 1 9-9z"/>
+  <rect x="7" y="23.6" width="10" height="3.2" rx="1.4" fill="var(--ink)"/>
+  <rect x="7.6" y="28.4" width="8.8" height="2.6" rx="1.2" fill="var(--ink)"/>
 </svg>
 
-<div id="menu" class="screen">
-  <h1>⚡ Юный электрик ⚡</h1>
-  <p class="sub">Собирай настоящие электрические схемы и проходи уровни!</p>
-  <div class="menurow">
-    <button class="btn green" id="btnTheory">📖 Азбука электрика</button>
-    <button class="btn blue" id="btnHowto">❓ Как играть</button>
-    <button class="btn orange" id="btnReset">🗑 Сбросить прогресс</button>
-  </div>
-  <div id="levels"></div>
-  <p class="foot">Игра для юных изобретателей • всё работает прямо в браузере, даже без интернета</p>
-</div>
-
-<div id="game" class="screen hidden">
-  <div id="topbar">
-    <button class="btn blue round" id="btnMenu" title="В меню" aria-label="В меню">🏠</button>
-    <div id="lvlname"></div>
-    <button class="btn orange round" id="btnRestart" title="Начать уровень заново" aria-label="Начать уровень заново">♻️</button>
-    <button class="btn green round" id="btnTheory2" title="Азбука электрика" aria-label="Открыть Азбуку электрика">📖</button>
-    <button class="btn gray round" id="btnSound" title="Звук" aria-label="Включить или выключить звук">🔊</button>
-  </div>
-  <div id="main">
-    <aside id="palette"><h3>🧰 Детали</h3></aside>
-    <div id="stage">
-      <svg id="canvas" viewBox="0 0 1000 640" preserveAspectRatio="xMidYMid meet" aria-label="Поле для сборки электрической схемы">
-        <g id="gWires"></g>
-        <g id="gComps"></g>
-        <g id="gTerms"></g>
-        <g id="tempwire"></g>
-      </svg>
-      <div id="emptyHint" class="hidden"></div>
-      <div id="wireTip">🔌 Тяни к другой <b>клемме</b> или коснись двух клемм по очереди. Пустое место отменяет выбор.</div>
-      <div id="comptools" class="hidden">
-        <button id="toolRot" title="Повернуть (R)" aria-label="Повернуть выбранную деталь">⟳</button>
-        <button id="toolDel" title="Удалить (Delete)" aria-label="Удалить выбранную деталь или провод">🗑</button>
+<!-- ═══════════ ГЕРОЙ ═══════════ -->
+<header class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="kicker">· урок для юных электриков ·</div>
+      <h1>Закон <mark>Ома</mark></h1>
+      <p class="lead">Почему лампочка в фонарике светит слабо, а в большой люстре — ярко? Всё решают
+        три героя: <b class="term" data-term="U">напряжение</b>, <b class="term" data-term="I">ток</b> и
+        <b class="term" data-term="R">сопротивление</b>. Их связывает один простой закон — и ты его сейчас узнаешь.</p>
+      <div class="formula-art">
+        <span class="fa-tile" data-term="U" style="--cs:var(--u-soft)">U</span>
+        <span class="fa-op">=</span>
+        <span class="fa-tile" data-term="I" style="--cs:var(--i-soft)">I</span>
+        <span class="fa-op">×</span>
+        <span class="fa-tile" data-term="R" style="--cs:var(--r-soft)">R</span>
+        <span class="fa-hint">Наведи курсор или коснись любой буквы — расскажу, кто это.</span>
       </div>
-      <div id="goalcard">
-        <div class="gt">🎯 Задание</div>
-        <div class="goaltext"></div>
-        <div class="row">
-          <button class="btn green" id="btnCheck">✅ Проверить</button>
-          <button class="btn orange" id="btnHint" aria-label="Показать подсказку">💡</button>
+      <a class="btn" href="#lab">В лабораторию
+        <svg width="16" height="16" viewBox="0 0 16 16"><path d="M8 2v10M3.5 8.5 8 13l4.5-4.5" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </div>
+
+    <!-- маленькая цепь: щёлкни тумблером -->
+    <div class="hero-scene" id="heroScene" title="Щёлкни!">
+      <svg id="heroSvg" viewBox="0 0 380 300" role="button" tabindex="0" aria-pressed="false" aria-label="Включить цепь">
+        <defs>
+          <radialGradient id="glowH"><stop offset="0" stop-color="rgba(255,199,60,.95)"/><stop offset="1" stop-color="rgba(255,199,60,0)"/></radialGradient>
+        </defs>
+        <path class="wire-outer" d="M100 84 H280 Q312 84 312 116 V184 Q312 216 280 216 H100 Q68 216 68 184 V116 Q68 84 100 84 Z"/>
+        <path class="wire-inner" d="M100 84 H280 Q312 84 312 116 V184 Q312 216 280 216 H100 Q68 216 68 184 V116 Q68 84 100 84 Z"/>
+        <g id="heroSparks"></g>
+        <!-- лампа -->
+        <circle class="hero-glow" cx="190" cy="84" r="48" fill="url(#glowH)"/>
+        <g id="heroRays"></g>
+        <circle cx="190" cy="84" r="26" fill="#fff" stroke="var(--ink)" stroke-width="3"/>
+        <path class="hs-cold" d="M172 66 208 102 M208 66 172 102" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>
+        <path d="M172 66 208 102 M208 66 172 102" stroke="var(--u)" stroke-width="4" stroke-linecap="round" class="hero-ray"/>
+        <!-- батарейка -->
+        <rect x="40" y="134" width="56" height="52" rx="10" class="node-plate"/>
+        <line x1="50" y1="152" x2="86" y2="152" stroke="var(--ink)" stroke-width="4.5" stroke-linecap="round"/>
+        <line x1="58" y1="169" x2="78" y2="169" stroke="var(--ink)" stroke-width="4.5" stroke-linecap="round"/>
+        <!-- тумблер -->
+        <rect x="286" y="130" width="52" height="56" rx="10" class="node-plate" style="fill:var(--u-soft)"/>
+        <circle cx="312" cy="140" r="3.6" fill="var(--ink)"/>
+        <g id="togLever"><line x1="312" y1="168" x2="312" y2="142" stroke="var(--ink)" stroke-width="6" stroke-linecap="round"/></g>
+        <circle cx="312" cy="168" r="5.5" fill="var(--ink)"/>
+        <text id="heroHint" x="190" y="258" text-anchor="middle" font-size="15" font-weight="700" fill="var(--ink)">щёлкни тумблером!</text>
+        <path d="M258 246 Q 300 238 308 196" fill="none" stroke="var(--ink-soft)" stroke-width="2.2" stroke-dasharray="5 5"/>
+      </svg>
+    </div>
+  </div>
+</header>
+
+<main>
+<!-- ═══════════ 01 · ГЕРОИ ═══════════ -->
+<section id="heroes">
+  <div class="wrap">
+    <div class="sec-head" style="--ns:var(--u-soft)">
+      <span class="sec-num">01</span>
+      <div>
+        <h2>Знакомьтесь: три героя электричества</h2>
+        <p>Прежде чем считать — познакомимся. Каждый герой отвечает за своё дело, а встретившись в цепи,
+           они подчиняются закону Ома.</p>
+      </div>
+    </div>
+
+    <article class="hero-card" style="--hc:var(--u-soft)">
+      <div class="hc-illu">
+        <svg viewBox="0 0 220 190" aria-hidden="true">
+          <path d="M30 95 Q 45 75 60 95" fill="none" stroke="var(--u)" stroke-width="4" stroke-linecap="round" stroke-dasharray="2 7"/>
+          <path d="M160 95 Q 175 75 190 95" fill="none" stroke="var(--u)" stroke-width="4" stroke-linecap="round" stroke-dasharray="2 7"/>
+          <rect x="68" y="34" width="84" height="126" rx="14" fill="var(--u)" stroke="var(--ink)" stroke-width="3"/>
+          <rect x="68" y="34" width="84" height="20" rx="10" fill="var(--ink)"/>
+          <rect x="90" y="26" width="40" height="12" rx="5" fill="var(--ink)"/>
+          <circle cx="94" cy="86" r="6" fill="var(--ink)"/><circle cx="126" cy="86" r="6" fill="var(--ink)"/>
+          <circle cx="96" cy="84" r="2" fill="#fff"/><circle cx="128" cy="84" r="2" fill="#fff"/>
+          <path d="M98 106 Q 110 116 122 106" fill="none" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>
+          <line x1="60" y1="150" x2="48" y2="158" stroke="var(--ink)" stroke-width="3.5" stroke-linecap="round"/>
+          <line x1="160" y1="150" x2="172" y2="158" stroke="var(--ink)" stroke-width="3.5" stroke-linecap="round"/>
+          <text x="110" y="150" text-anchor="middle" class="svg-disp" font-weight="900" font-size="17" fill="var(--ink)">1,5 В</text>
+        </svg>
+      </div>
+      <div class="hc-body">
+        <div class="hc-tag">Герой №1 · старший толкач</div>
+        <h3><span class="hc-letter">U</span> Напряжение — Капитан Вольт</h3>
+        <p>Напряжение — это сила, с которой <b class="term" data-term="batt">батарейка</b> толкает
+           электрические заряды: «Бегом, ребята, по проводу!». Чем больше вольт — тем сильнее толчок.</p>
+        <div class="chips"><span class="chip">Обозначение: U</span><span class="chip">Единица: вольт (В)</span><span class="chip">Похоже на: толчок в спину</span></div>
+        <div class="hc-didyou"><b>Знаешь ли ты?</b> Пальчиковая батарейка даёт 1,5 В. А внутри грозовой тучи напряжение
+          достигает миллиарда вольт — вот откуда молния!</div>
+      </div>
+    </article>
+
+    <article class="hero-card flip" style="--hc:var(--i-soft)">
+      <div class="hc-illu">
+        <svg viewBox="0 0 220 190" aria-hidden="true">
+          <path d="M14 96 H206" stroke="var(--i-soft)" stroke-width="2" stroke-dasharray="6 8" fill="none"/>
+          <g stroke="var(--ink)" stroke-width="2.5">
+            <circle cx="52" cy="96" r="16" fill="var(--i)"/><circle cx="112" cy="96" r="20" fill="var(--i)"/><circle cx="176" cy="96" r="14" fill="var(--i)"/>
+          </g>
+          <circle cx="47" cy="92" r="3.2" fill="var(--ink)"/><circle cx="57" cy="92" r="3.2" fill="var(--ink)"/>
+          <circle cx="105" cy="91" r="4" fill="var(--ink)"/><circle cx="119" cy="91" r="4" fill="var(--ink)"/>
+          <circle cx="171" cy="92" r="2.8" fill="var(--ink)"/><circle cx="181" cy="92" r="2.8" fill="var(--ink)"/>
+          <path d="M106 100 Q 112 106 118 100 M48 100 Q 52 104 56 100 M172 100 Q 176 104 180 100" fill="none" stroke="var(--ink)" stroke-width="2.2" stroke-linecap="round"/>
+          <path d="M30 130 Q 110 158 194 128" fill="none" stroke="var(--i)" stroke-width="4" stroke-linecap="round" stroke-dasharray="1 9"/>
+        </svg>
+      </div>
+      <div class="hc-body">
+        <div class="hc-tag">Герой №2 · бегуны в проводах</div>
+        <h3><span class="hc-letter" >I</span> Ток — Эскадрон Ампер</h3>
+        <p>Ток — это направленное движение зарядов по проводу, похожее на поток воды в реке. Чем больше зарядов
+           пробегает мимо за одну секунду, тем больше ампер показывает <b class="term" data-term="amp">амперметр</b>.</p>
+        <div class="chips"><span class="chip">Обозначение: I</span><span class="chip">Единица: ампер (А)</span><span class="chip">Похоже на: поток воды</span></div>
+        <div class="hc-didyou"><b>Знаешь ли ты?</b> Через лампочку фонарика бежит ток около 0,2 А.
+          А молния — это ток в тысячи ампер!</div>
+      </div>
+    </article>
+
+    <article class="hero-card" style="--hc:var(--r-soft)">
+      <div class="hc-illu">
+        <svg viewBox="0 0 220 190" aria-hidden="true">
+          <line x1="10" y1="96" x2="52" y2="96" stroke="var(--ink)" stroke-width="4"/>
+          <line x1="168" y1="96" x2="210" y2="96" stroke="var(--ink)" stroke-width="4"/>
+          <rect x="50" y="66" width="120" height="60" rx="12" fill="var(--r)" stroke="var(--ink)" stroke-width="3"/>
+          <rect x="72" y="66" width="10" height="60" fill="var(--ink)" opacity=".75"/>
+          <rect x="98" y="66" width="10" height="60" fill="var(--u)" stroke="var(--ink)" stroke-width="1.5"/>
+          <rect x="124" y="66" width="10" height="60" fill="var(--ink)" opacity=".75"/>
+          <circle cx="88" cy="88" r="5.5" fill="var(--ink)"/><circle cx="132" cy="88" r="5.5" fill="var(--ink)"/>
+          <circle cx="90" cy="86" r="1.8" fill="#fff"/><circle cx="134" cy="86" r="1.8" fill="#fff"/>
+          <path d="M100 108 Q 110 102 120 108" fill="none" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>
+          <line x1="58" y1="126" x2="50" y2="142" stroke="var(--ink)" stroke-width="3.5" stroke-linecap="round"/>
+          <line x1="162" y1="126" x2="170" y2="142" stroke="var(--ink)" stroke-width="3.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="hc-body">
+        <div class="hc-tag">Герой №3 · упрямый контролёр</div>
+        <h3><span class="hc-letter">R</span> Сопротивление — Упрямец Ом</h3>
+        <p>Сопротивление показывает, как трудно зарядам пробежать через участок
+           <b class="term" data-term="chain">цепи</b>. Узкий проход, тонкая нить, длинная спираль —
+           зарядам приходится потесниться и притормозить.</p>
+        <div class="chips"><span class="chip">Обозначение: R</span><span class="chip">Единица: ом (Ом)</span><span class="chip">Похоже на: узкую дверь в метро</span></div>
+        <div class="hc-didyou"><b>Знаешь ли ты?</b> Нить накала лампочки сделана из вольфрама и раскаляется
+          до 2500 °C — именно поэтому она светит!</div>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ═══════════ 02 · ЛАБОРАТОРИЯ ═══════════ -->
+<section id="lab">
+  <div class="wrap">
+    <div class="sec-head" style="--ns:var(--i-soft)">
+      <span class="sec-num">02</span>
+      <div>
+        <h2>Лаборатория: собери свою цепь</h2>
+        <p>Крути ручки: батарейка меняет напряжение U, лампочка — сопротивление R, а амперметр покажет ток I.
+           Внимательно смотри на формулу — закономерность видна сразу.</p>
+      </div>
+    </div>
+
+    <div class="lab-grid">
+      <!-- живая схема -->
+      <div class="scene-card">
+        <svg id="labSvg" viewBox="0 0 900 520">
+          <defs><radialGradient id="glowL"><stop offset="0" stop-color="rgba(255,199,60,.9)"/><stop offset="1" stop-color="rgba(255,199,60,0)"/></radialGradient></defs>
+          <path class="wire-outer" d="M210 100 H690 Q730 100 730 140 V380 Q730 420 690 420 H210 Q170 420 170 380 V140 Q170 100 210 100 Z"/>
+          <path class="wire-inner" d="M210 100 H690 Q730 100 730 140 V380 Q730 420 690 420 H210 Q170 420 170 380 V140 Q170 100 210 100 Z"/>
+          <path class="flow-arrow" d="M292 92 312 100 292 108 Z"/>
+          <path class="flow-arrow" d="M400 412 380 420 400 428 Z"/>
+          <path class="flow-arrow" d="M722 182 730 202 738 182 Z"/>
+          <g id="electrons"></g>
+          <!-- батарейка -->
+          <g transform="translate(170,260)">
+            <rect x="-46" y="-30" width="88" height="60" rx="12" class="node-plate"/>
+            <line x1="-24" y1="-11" x2="32" y2="-11" stroke="var(--ink)" stroke-width="5" stroke-linecap="round"/>
+            <line x1="-10" y1="11" x2="18" y2="11" stroke="var(--ink)" stroke-width="5" stroke-linecap="round"/>
+            <text x="-36" y="-6" font-size="13" font-weight="800" fill="var(--ink)">+</text>
+            <text x="-36" y="18" font-size="13" font-weight="800" fill="var(--ink)">−</text>
+          </g>
+          <!-- лампа -->
+          <g transform="translate(450,100)">
+            <circle id="lampGlowC" r="62" fill="url(#glowL)" opacity="0"/>
+            <g id="lampRays" opacity="0"></g>
+            <circle r="34" fill="#fff" stroke="var(--ink)" stroke-width="3"/>
+            <path id="crossInk" d="M-24 -24 24 24 M24 -24 -24 24" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>
+            <path id="crossHot" d="M-24 -24 24 24 M24 -24 -24 24" stroke="var(--u)" stroke-width="4.5" stroke-linecap="round" opacity="0"/>
+          </g>
+          <!-- амперметр -->
+          <g transform="translate(730,260)">
+            <circle r="36" class="node-plate"/>
+            <path d="M-20.8 -12 A 24 24 0 0 1 20.8 -12" fill="none" stroke="var(--ink)" stroke-width="2.5"/>
+            <line x1="-23" y1="-9" x2="-27.5" y2="-7" stroke="var(--ink)" stroke-width="2"/>
+            <line x1="0" y1="-21" x2="0" y2="-26" stroke="var(--ink)" stroke-width="2"/>
+            <line x1="23" y1="-9" x2="27.5" y2="-7" stroke="var(--ink)" stroke-width="2"/>
+            <g id="amNeedle"><line x1="0" y1="6" x2="0" y2="-20" stroke="var(--r-deep)" stroke-width="3.5" stroke-linecap="round"/></g>
+            <circle r="3.6" fill="var(--ink)"/>
+            <text y="27" text-anchor="middle" class="svg-disp" font-weight="900" font-size="15" fill="var(--i-deep)">A</text>
+          </g>
+          <!-- подписи -->
+          <text x="450" y="30" text-anchor="middle" class="svg-label">Лампочка · сопротивление R = <tspan id="svgR">3,0 Ом</tspan></text>
+          <text transform="rotate(-90 100 260)" x="100" y="260" text-anchor="middle" class="svg-label">Батарейка · U = <tspan id="svgU">4,5 В</tspan></text>
+          <text transform="rotate(90 800 260)" x="800" y="260" text-anchor="middle" class="svg-label">Ток I = <tspan id="svgI">1,5 А</tspan></text>
+        </svg>
+        <div class="scene-cap">Бирюзовые шарики — заряды. Чем больше зарядов проходит за секунду, тем больше ток I:
+          он растёт вместе с U и уменьшается, когда растёт R.</div>
+      </div>
+
+      <!-- пульт -->
+      <div class="panel">
+        <div class="panel-title">Пульт юного электрика</div>
+        <div class="dials">
+          <div class="dial-unit">
+            <div class="dial-label" style="color:var(--u-deep)">Напряжение U</div>
+            <div id="dialU"></div>
+            <div class="dial-value" id="dialUVal" style="color:var(--u-deep)">4,5 В</div>
+          </div>
+          <div class="dial-unit">
+            <div class="dial-label" style="color:var(--r-deep)">Сопротивление R</div>
+            <div id="dialR"></div>
+            <div class="dial-value" id="dialRVal" style="color:var(--r-deep)">3,0 Ом</div>
+          </div>
+        </div>
+        <div class="live-formula">
+          <span class="lf-letter" style="color:var(--i-deep)">I</span><span>=</span>
+          <span class="lf-val" id="lfU" style="border-color:var(--u)">4,5 В</span><span>÷</span>
+          <span class="lf-val" id="lfR" style="border-color:var(--r)">3,0 Ом</span><span>=</span>
+          <span class="lf-val" id="lfI" style="border-color:var(--i);background:var(--i-soft)">1,5 А</span>
+        </div>
+        <div class="prof-row">
+          <svg class="prof-ava" viewBox="0 0 64 64" aria-hidden="true">
+            <circle cx="32" cy="36" r="22" fill="#F7E3C8" stroke="var(--ink)" stroke-width="2.5"/>
+            <path d="M10 36 Q 8 10 32 8 Q 56 10 54 36 Q 48 24 32 24 Q 16 24 10 36 Z" fill="var(--ink)"/>
+            <circle cx="23" cy="38" r="7.5" fill="#fff" stroke="var(--ink)" stroke-width="2"/>
+            <circle cx="41" cy="38" r="7.5" fill="#fff" stroke="var(--ink)" stroke-width="2"/>
+            <path d="M30.5 38 h3" stroke="var(--ink)" stroke-width="2"/>
+            <circle cx="23" cy="39" r="2" fill="var(--ink)"/><circle cx="41" cy="39" r="2" fill="var(--ink)"/>
+            <path d="M26 50 Q 32 55 38 50" fill="none" stroke="var(--ink)" stroke-width="2.5" stroke-linecap="round"/>
+          </svg>
+          <div class="bubble" id="profBubble">Привет! Я — профессор Ом. Покрути ручки и следи за формулой: я подскажу, что происходит.</div>
         </div>
       </div>
     </div>
-  </div>
-</div>
 
-<div id="modal" class="hidden" role="dialog" aria-modal="true" aria-label="Диалог игры"><div id="modalCard"></div></div>
-<div id="toast" class="hidden" role="status" aria-live="polite"></div>
+    <div class="safety">
+      <svg width="30" height="30" viewBox="0 0 30 30"><path d="M17 2 5 17h7l-1 11L25 12h-8z" fill="var(--r)" stroke="var(--ink)" stroke-width="2" stroke-linejoin="round"/></svg>
+      Правило юного электрика: настоящие опыты — только с батарейками и лампочками. В розетке 220 В — это не игрушка!
+    </div>
+
+    <!-- водная аналогия -->
+    <div class="water-card">
+      <h3>Та же цепь, но с водой</h3>
+      <p>Электричество не видно, но его легко представить. Насос толкает воду — как батарейка толкает заряды.
+         Узкая труба мешает потоку — как сопротивление. А бегущие капли — это ток. Эта картинка всегда
+         крутится вместе с твоими ручками из лаборатории!</p>
+      <svg id="waterSvg" viewBox="0 0 900 218">
+        <path class="pipe-wall" d="M136 66 H430 L476 88 H524 L570 66 H844"/>
+        <path class="pipe-wall" d="M136 144 H430 L476 122 H524 L570 144 H844"/>
+        <polygon points="430,66 570,66 524,88 476,88" fill="var(--r)" stroke="var(--ink)" stroke-width="2.5"/>
+        <polygon points="430,144 570,144 524,122 476,122" fill="var(--r)" stroke="var(--ink)" stroke-width="2.5"/>
+        <path d="M240 99 260 105 240 111 Z" fill="var(--i)"/>
+        <path d="M690 99 710 105 690 111 Z" fill="var(--i)"/>
+        <g id="drops"></g>
+        <!-- насос -->
+        <g transform="translate(96,105)">
+          <circle r="36" class="node-plate"/>
+          <g id="impeller">
+            <line x1="0" y1="0" x2="0" y2="-24" stroke="var(--i)" stroke-width="6" stroke-linecap="round"/>
+            <line x1="0" y1="0" x2="21" y2="12" stroke="var(--i)" stroke-width="6" stroke-linecap="round"/>
+            <line x1="0" y1="0" x2="-21" y2="12" stroke="var(--i)" stroke-width="6" stroke-linecap="round"/>
+          </g>
+          <circle r="6" fill="var(--ink)"/>
+        </g>
+        <line x1="96" y1="148" x2="96" y2="168" stroke="var(--ink-soft)" stroke-width="2" stroke-dasharray="4 4"/>
+        <text x="96" y="192" text-anchor="middle" font-size="14.5" font-weight="700" fill="var(--u-deep)">Насос = батарейка (U)</text>
+        <line x1="500" y1="130" x2="500" y2="168" stroke="var(--ink-soft)" stroke-width="2" stroke-dasharray="4 4"/>
+        <text x="500" y="192" text-anchor="middle" font-size="14.5" font-weight="700" fill="var(--r-deep)">Узкая труба = сопротивление (R)</text>
+        <line x1="762" y1="118" x2="762" y2="168" stroke="var(--ink-soft)" stroke-width="2" stroke-dasharray="4 4"/>
+        <text x="762" y="192" text-anchor="middle" font-size="14.5" font-weight="700" fill="var(--i-deep)">Поток воды = ток (I)</text>
+      </svg>
+      <div class="w-note">Заметь: в узкой трубе капли ускоряются — так же и в физике: через узкое место
+         то же количество воды должно проскочить быстрее.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ 03 · ТРЕУГОЛЬНИК ═══════════ -->
+<section id="triangle">
+  <div class="wrap">
+    <div class="sec-head" style="--ns:var(--r-soft)">
+      <span class="sec-num">03</span>
+      <div>
+        <h2>Магический треугольник</h2>
+        <p>Забыл формулу на контрольной? Треугольник спасёт. Закрой пальцем величину, которую ищешь, —
+           и сразу увидишь, что делать с двумя оставшимися. Попробуй прямо здесь!</p>
+      </div>
+    </div>
+    <div class="tri-grid">
+      <div class="tri-scene">
+        <div>
+          <svg viewBox="0 0 360 300">
+            <path d="M180 34 L330 262 L30 262 Z" fill="var(--card)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round"/>
+            <line x1="84" y1="180" x2="276" y2="180" stroke="var(--ink)" stroke-width="4"/>
+            <line x1="180" y1="180" x2="180" y2="262" stroke="var(--ink)" stroke-width="4"/>
+            <polygon class="tri-fill" id="fillU" points="180,34 276,180 84,180" fill="var(--ink)" opacity="0"/>
+            <polygon class="tri-fill" id="fillI" points="84,180 180,180 180,262 30,262" fill="var(--ink)" opacity="0"/>
+            <polygon class="tri-fill" id="fillR" points="276,180 330,262 180,262 180,180" fill="var(--ink)" opacity="0"/>
+            <text class="tri-letter" id="ltU" x="180" y="152" text-anchor="middle" fill="var(--u)">U</text>
+            <text class="tri-letter" id="ltI" x="131" y="238" text-anchor="middle" fill="var(--i)">I</text>
+            <text class="tri-letter" id="ltR" x="229" y="238" text-anchor="middle" fill="var(--r)">R</text>
+            <text class="tri-q" id="qU" x="180" y="148" text-anchor="middle">?</text>
+            <text class="tri-q" id="qI" x="118" y="238" text-anchor="middle">?</text>
+            <text class="tri-q" id="qR" x="242" y="238" text-anchor="middle">?</text>
+            <polygon class="tri-cell" data-c="U" points="180,34 276,180 84,180" fill="transparent"/>
+            <polygon class="tri-cell" data-c="I" points="84,180 180,180 180,262 30,262" fill="transparent"/>
+            <polygon class="tri-cell" data-c="R" points="276,180 330,262 180,262 180,180" fill="transparent"/>
+          </svg>
+          <div class="tri-cap">Кликни на букву, которую хочешь найти</div>
+        </div>
+      </div>
+      <div class="tri-panel">
+        <h3 id="triTitle">Выбери величину</h3>
+        <p id="triText">Нажми на U, I или R в треугольнике — и я покажу правило. Закрытая величина «пропадает»,
+           а оставшиеся две подсказывают действие: стоят рядом — умножай, разъединены — дели.</p>
+        <div class="tri-formula" id="triFormula">U = I × R</div>
+        <div class="tri-example" id="triExample">Например: 2 А × 6 Ом = 12 В</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ 04 · ТЕСТ ═══════════ -->
+<section id="quiz">
+  <div class="wrap">
+    <div class="sec-head" style="--ns:var(--u-soft)">
+      <span class="sec-num">04</span>
+      <div>
+        <h2>Проверь себя</h2>
+        <p>Пять задачек — от простых к хитрым. Подсказки рядом, ошибиться не страшно:
+           за каждую решённую задачу загорается лампочка.</p>
+      </div>
+    </div>
+    <div class="quiz-card">
+      <div class="q-top">
+        <div class="q-lamps" id="qLamps"></div>
+        <div class="q-count" id="qCount">Вопрос 1 из 5</div>
+      </div>
+      <div id="qBody">
+        <div class="q-text" id="qText"></div>
+        <div class="q-answers" id="qAnswers"></div>
+        <div class="q-foot">
+          <button class="hint-btn" id="qHintBtn">Показать подсказку</button>
+          <div class="q-hint" id="qHint" hidden></div>
+        </div>
+        <div class="q-after" id="qAfter" hidden>
+          <div class="q-why" id="qWhy"></div>
+          <button class="btn" id="qNext">Следующий вопрос
+            <svg width="15" height="15" viewBox="0 0 16 16"><path d="M2 8h11M8.5 3.5 13 8l-4.5 4.5" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="q-final" id="qFinal" hidden>
+        <div class="qf-score" id="qfScore"></div>
+        <div class="qf-title" id="qfTitle"></div>
+        <p class="qf-text" id="qfText"></p>
+        <button class="btn ghost" id="qRestart">Пройти ещё раз</button>
+      </div>
+    </div>
+
+    <!-- шпаргалка -->
+    <div class="cheat">
+      <h3>Шпаргалка на память</h3>
+      <div class="cheat-row">
+        <span class="cu">U = I × R</span><span>·</span>
+        <span class="ci">I = U ÷ R</span><span>·</span>
+        <span class="cr">R = U ÷ I</span>
+      </div>
+      <p>Напряжение меряем в вольтах (В), ток — в амперах (А), сопротивление — в омах (Ом).
+         Закон открыл Георг Ом в 1827 году — и за эту идею его сначала даже уволили с работы.
+         Настойчивость, кстати, тоже работает по закону.</p>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <b>Закон Ома · урок для юных электриков.</b> Все опыты на этой странице совершенно безопасны — тут бегают только нарисованные заряды.
+</footer>
+
+<div id="tooltip" role="tooltip"></div>
 
 <script>
+(function(){
 'use strict';
-/* ================= утилиты и защита от случайных кликов ================= */
-const $=s=>document.querySelector(s);
-const SVG='http://www.w3.org/2000/svg';
-const snap=v=>Math.round(v/20)*20;
+const NS='http://www.w3.org/2000/svg';
+const $=id=>document.getElementById(id);
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
-const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
-function rotPt(x,y,r){const a=r*Math.PI/180,c=Math.cos(a),s=Math.sin(a);return{x:x*c-y*s,y:x*s+y*c};}
-function E(tag,attrs,inner){let s='<'+tag;for(const k in attrs)s+=' '+k+'="'+attrs[k]+'"';
-  return inner===undefined?s+'/>' : s+'>'+inner+'</'+tag+'>';}
-let _nid=1; const nid=()=>_nid++;
+const fmt=(v,d=1)=>v.toFixed(d).replace('.',',');
+const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-// Защита от спам-кликов
-function debounceBtn(fn, ms = 1000) {
-    return function(e) {
-        if (this.classList.contains('locked')) return;
-        this.classList.add('locked');
-        setTimeout(() => this.classList.remove('locked'), ms);
-        fn.call(this, e);
-    }
-}
-
-/* ================= звук ================= */
-let actx=null, muted=false;
-try{ muted = localStorage.getItem('ye_muted')==='1'; }catch(e){}
-function audio(){ if(!actx){ try{ actx=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } if(actx&&actx.state==='suspended')actx.resume(); return actx; }
-function tone(f,dur,type,vol,slide){
-  if(muted)return; const c=audio(); if(!c)return;
-  const o=c.createOscillator(),g=c.createGain();
-  o.type=type||'sine'; o.frequency.setValueAtTime(f,c.currentTime);
-  if(slide)o.frequency.exponentialRampToValueAtTime(slide,c.currentTime+dur);
-  g.gain.setValueAtTime(vol||0.12,c.currentTime);
-  g.gain.exponentialRampToValueAtTime(0.0001,c.currentTime+dur);
-  o.connect(g).connect(c.destination); o.start(); o.stop(c.currentTime+dur+0.02);
-}
-const sClick =()=>tone(700,0.07,'square',0.06);
-const sPop   =()=>tone(300,0.12,'sine',0.14,600);
-const sFail  =()=>{tone(160,0.25,'sawtooth',0.1);setTimeout(()=>tone(120,0.3,'sawtooth',0.1),120);};
-const sDing  =()=>{tone(1318,0.5,'triangle',0.1);tone(1975,0.4,'sine',0.05);};
-const sSpark =()=>tone(90,0.35,'sawtooth',0.16,40);
-function sWin(){[523,659,784,1046].forEach((f,i)=>setTimeout(()=>tone(f,0.22,'triangle',0.12),i*130));}
-
-/* ================= каталог деталей ================= */
-const COMP={
-  battery:{name:'Батарейка',terms:[{x:-32,y:0},{x:32,y:0}],
-    draw(c,st,sim){
-      const hot=sim&&sim.short;
-      let s=E('rect',{x:-30,y:-17,width:60,height:34,rx:8,fill:hot?'#ff8a65':'#ffd54f',stroke:'#a07600','stroke-width':3});
-      s+=E('text',{x:-20,y:7,'font-size':17,fill:'#1565c0','font-weight':'bold','font-family':'Arial'},'−');
-      s+=E('text',{x:13,y:7,'font-size':15,fill:'#c62828','font-weight':'bold','font-family':'Arial'},'+');
-      s+=E('text',{x:-2,y:7,'font-size':12,fill:'#8a6400','text-anchor':'middle'},'⚡');
-      if(hot)s+=E('text',{y:-22,'font-size':20,'text-anchor':'middle'},'🔥');
-      return s;
-    }},
-  lamp:{name:'Лампочка',terms:[{x:-30,y:0},{x:30,y:0}],
-    draw(c,st,sim){
-      const on=st&&st.on, dim=on&&sim&&sim.dim;
-      let s='';
-      if(on){
-        s+=E('circle',{r:dim?24:30,fill:'#ffd23f',opacity:dim?0.35:0.6,filter:'url(#blur5)'});
-        if(!dim){
-          let rays='';
-          for(let i=0;i<8;i++){const a=i*Math.PI/4;
-            rays+=E('line',{x1:Math.cos(a)*25,y1:Math.sin(a)*25,x2:Math.cos(a)*33,y2:Math.sin(a)*33,stroke:'#ffb300','stroke-width':3.5,'stroke-linecap':'round'});}
-          s+=E('g',{class:'rays'},rays);
-        }
-      }
-      s+=E('circle',{r:19,fill:on?(dim?'#ffe9a8':'#ffe066'):'#ffffff',stroke:'#37474f','stroke-width':3});
-      s+=E('path',{d:'M-11 -11 L11 11 M-11 11 L11 -11',stroke:'#37474f','stroke-width':3,'stroke-linecap':'round',fill:'none'});
-      s+=E('line',{x1:-30,y1:0,x2:-19,y2:0,stroke:'#37474f','stroke-width':3});
-      s+=E('line',{x1:19,y1:0,x2:30,y2:0,stroke:'#37474f','stroke-width':3});
-      return s;
-    }},
-  switch:{name:'Выключатель',terms:[{x:-30,y:0},{x:30,y:0}],
-    draw(c){
-      const closed=!!(c.props&&c.props.closed);
-      let s=E('line',{x1:-30,y1:0,x2:-20,y2:0,stroke:'#37474f','stroke-width':3});
-      s+=E('line',{x1:20,y1:0,x2:30,y2:0,stroke:'#37474f','stroke-width':3});
-      s+=E('circle',{cx:-16,cy:0,r:4.5,fill:'#fff',stroke:'#37474f','stroke-width':3});
-      s+=E('circle',{cx:16,cy:0,r:4.5,fill:'#fff',stroke:'#37474f','stroke-width':3});
-      s+=closed
-        ?E('line',{x1:-16,y1:0,x2:16,y2:0,stroke:'#ef6c00','stroke-width':5,'stroke-linecap':'round'})
-        :E('line',{x1:-16,y1:0,x2:13,y2:-16,stroke:'#ef6c00','stroke-width':5,'stroke-linecap':'round'});
-      if(!closed)s+=E('text',{x:0,y:-24,'font-size':13,fill:'#9aa7ad','text-anchor':'middle'},'нажми!');
-      return s;
-    }},
-  button:{name:'Кнопка',terms:[{x:-30,y:0},{x:30,y:0}],
-    draw(c){
-      const p=!!(c.props&&c.props.pressed);
-      let s=E('line',{x1:-30,y1:0,x2:-18,y2:0,stroke:'#37474f','stroke-width':3});
-      s+=E('line',{x1:18,y1:0,x2:30,y2:0,stroke:'#37474f','stroke-width':3});
-      s+=E('rect',{x:-18,y:-2,width:36,height:12,rx:4,fill:'#b0bec5',stroke:'#37474f','stroke-width':2.5});
-      s+=E('line',{x1:-11,y1:-2,x2:-11,y2:-9,stroke:'#37474f','stroke-width':2.5});
-      s+=E('line',{x1:11,y1:-2,x2:11,y2:-9,stroke:'#37474f','stroke-width':2.5});
-      s+=E('circle',{cx:0,cy:p?-6:-12,r:p?8:9,fill:'#ef5350',stroke:'#8e1b1b','stroke-width':2.5});
-      return s;
-    }},
-  motor:{name:'Моторчик',terms:[{x:-30,y:0},{x:30,y:0}],
-    draw(c,st){
-      const on=st&&st.on;
-      const rev=st&&st.reverse;
-      let s=E('line',{x1:-30,y1:0,x2:-19,y2:0,stroke:'#37474f','stroke-width':3});
-      s+=E('line',{x1:19,y1:0,x2:30,y2:0,stroke:'#37474f','stroke-width':3});
-      s+=E('circle',{r:19,fill:'#eceff1',stroke:'#37474f','stroke-width':3});
-      s+=E('circle',{r:13,fill:'none',stroke:'#90a4ae','stroke-width':3.5,'stroke-dasharray':'5.5 5.5',class:on?(rev?'rotor rev':'rotor'):''});
-      s+=E('text',{y:5.5,'font-size':13,'font-weight':'bold',fill:'#37474f','text-anchor':'middle','font-family':'Arial'},'M');
-      return s;
-    }},
-  bell:{name:'Звонок',terms:[{x:-30,y:0},{x:30,y:0}],
-    draw(c,st){
-      const on=st&&st.on;
-      let s=E('line',{x1:-30,y1:0,x2:-18,y2:0,stroke:'#37474f','stroke-width':3});
-      s+=E('line',{x1:18,y1:0,x2:30,y2:0,stroke:'#37474f','stroke-width':3});
-      const dome=E('circle',{cx:-13,cy:2,r:3.5,fill:'#37474f'})
-        +E('path',{d:'M-14 3 a14 14 0 0 1 28 0 z',fill:'#ffca28',stroke:'#8d6708','stroke-width':3})
-        +E('line',{x1:-6,y1:-12,x2:-6,y2:-19,stroke:'#8d6708','stroke-width':3})
-        +E('circle',{cx:-6,cy:-20,r:3,fill:'#8d6708'});
-      s+=E('g',{class:on?'shakeon':''},dome);
-      s+=E('line',{x1:-20,y1:3,x2:20,y2:3,stroke:'#37474f','stroke-width':3,'stroke-linecap':'round'});
-      s+=E('circle',{cx:2,cy:9,r:3.5,fill:'#37474f'});
-      if(on){
-        s+=E('path',{d:'M22 -12 a10 10 0 0 1 0 16',stroke:'#ffb300','stroke-width':2.5,fill:'none','stroke-linecap':'round',class:'rays'});
-        s+=E('path',{d:'M28 -16 a14 14 0 0 1 0 22',stroke:'#ffb300','stroke-width':2.5,fill:'none','stroke-linecap':'round',class:'rays'});
-      }
-      return s;
-    }},
-  led:{name:'Светодиод',terms:[{x:-30,y:0},{x:30,y:0}],
-    draw(c,st){
-      const on=st&&st.on;
-      let s=E('line',{x1:-30,y1:0,x2:-12,y2:0,stroke:'#37474f','stroke-width':3});
-      s+=E('line',{x1:12,y1:0,x2:30,y2:0,stroke:'#37474f','stroke-width':3});
-      if(on){
-        s+=E('circle',{r:24,fill:'#ff1744',opacity:0.45,filter:'url(#blur5)'});
-        let rays='';
-        for(let i=0;i<6;i++){const a=-Math.PI/2+(i-2.5)*0.5;
-          rays+=E('line',{x1:Math.cos(a)*22,y1:Math.sin(a)*22,x2:Math.cos(a)*30,y2:Math.sin(a)*30,stroke:'#ff5252','stroke-width':3,'stroke-linecap':'round'});}
-        s+=E('g',{class:'rays'},rays);
-      }
-      s+=E('path',{d:'M-12 -12 L-12 12 L12 0 Z',fill:on?'#ff1744':'#ff8a80',stroke:'#37474f','stroke-width':2.5,'stroke-linejoin':'round'});
-      s+=E('line',{x1:12,y1:-13,x2:12,y2:13,stroke:'#37474f','stroke-width':3});
-      s+=E('text',{x:-24,y:-15,'font-size':13,fill:'#d32f2f','font-weight':'bold','font-family':'Arial'},'+');
-      s+=E('text',{x:17,y:-15,'font-size':12,fill:'#607d8b','font-family':'Arial'},'−');
-      return s;
-    }},
-  resistor:{name:'Резистор',terms:[{x:-30,y:0},{x:30,y:0}],
-    draw(){
-      return E('path',{d:'M-30 0 L-20 0 L-15 -9 L-5 9 L5 -9 L15 9 L20 0 L30 0',
-        fill:'none',stroke:'#a1887f','stroke-width':4.5,'stroke-linejoin':'round','stroke-linecap':'round'});
-    }},
+/* ── словарик терминов ── */
+const TERMS={
+  U:'НАПРЯЖЕНИЕ (U) — электрический «толчок», который заставляет заряды бежать по проводу. Измеряется в вольтах (В).',
+  I:'ТОК (I) — поток электрических зарядов в проводе, как река. Измеряется в амперах (А).',
+  R:'СОПРОТИВЛЕНИЕ (R) — мера того, насколько трудно зарядам пройти через элемент цепи. Измеряется в омах (Ом).',
+  batt:'БАТАРЕЙКА — источник напряжения: создаёт «толчок» для зарядов и отправляет их в путь.',
+  chain:'ЦЕПЬ — замкнутый путь, по которому заряды бегут от батарейки и обратно. Разорвёшь цепь — ток остановится.',
+  amp:'АМПЕРМЕТР — прибор, который измеряет ток. В нашей лаборатории он круглый, со стрелкой.'
 };
-const WIRE_COLORS=['#ef476f','#06d6a0','#118ab2','#ffad33','#9b5de5','#5c946e'];
+const tip=$('tooltip'); let tipEl=null;
+function showTip(el){
+  const def=TERMS[el.dataset.term]; if(!def) return;
+  tip.textContent=def; tip.classList.add('show');
+  const r=el.getBoundingClientRect(), tw=tip.offsetWidth, th=tip.offsetHeight;
+  let x=clamp(r.left+r.width/2-tw/2,10,innerWidth-tw-10);
+  let y=r.top-th-11; const below=y<10; if(below) y=r.bottom+11;
+  tip.style.left=x+'px'; tip.style.top=y+'px';
+  tip.style.setProperty('--ax',clamp(r.left+r.width/2-x,16,tw-16)+'px');
+  tip.classList.toggle('below',below);
+}
+document.addEventListener('mouseover',e=>{const t=e.target.closest('[data-term]'); if(t){tipEl=t; showTip(t);}});
+document.addEventListener('mouseout',e=>{if(tipEl&&!tipEl.contains(e.relatedTarget)){tip.classList.remove('show'); tipEl=null;}});
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-term]');
+  if(t){tipEl=t; showTip(t); e.stopPropagation();}
+  else{tip.classList.remove('show');tipEl=null;}
+});
+document.querySelectorAll('[data-term]').forEach(el=>{
+  el.tabIndex=0; el.setAttribute('aria-describedby','tooltip');
+  el.addEventListener('focus',()=>{tipEl=el;showTip(el);});
+  el.addEventListener('blur',()=>{tip.classList.remove('show');tipEl=null;});
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){tip.classList.remove('show');tipEl=null;}});
+addEventListener('scroll',()=>{tip.classList.remove('show');tipEl=null;},{passive:true});
 
-/* ================= уровни ================= */
-const LEVELS=[
- {n:1,title:'Зажги лампочку',goal:'Собери цепь, чтобы лампочка светилась.',
-  fact:'Электрический ток — это крошечные заряженные частички. По проводу они ползут медленно, а вот «сигнал» бежит почти со скоростью света!',
-  story:'Привет! Я профессор Вольт. Электрический ток любит бегать по кругу — по замкнутой цепи! Возьми батарейку и лампочку и соедини их проводами так, чтобы ток побежал от «+» к «−» — и лампочка загорится! P.S. В меню есть «📖 Азбука электрика» — там всё объяснено с анимациями!',
-  hints:[
-  'Нужно два провода: от «+» батарейки к любой клемме лампочки, и от другой клеммы лампочки обратно к «−» батарейки.',
-  'Потяни мышкой от кружочка «+» батарейки к кружочку на лампочке — получится провод. Повтори для второй клеммы.',
-  'Лампа не горит? Проверь, что провода присоединены именно к кружочкам-клеммам (при наведении они увеличиваются), а не просто рядом.'],
-  palette:['battery','lamp'],
-  demo:{vb:'0 0 340 160',components:[{type:'battery',x:70,y:105},{type:'lamp',x:250,y:105}],wires:[['d0',1,'d1',0],['d1',1,'d0',0]]}},
- {n:2,title:'Выключатель',goal:'Лампочка должна светиться, когда выключатель включён, и гаснуть, когда выключен.',
-  fact:'Выключатель в твоей комнате делает ровно то же самое — размыкает цепь. Поэтому лампа гаснет мгновенно!',
-  story:'Настоящий электрик управляет током! Выключатель размыкает цепь: щёлк — и ток не может пробежать, лампочка гаснет. Собери цепь с выключателем и попробуй щёлкать им!',
-  hints:[
-  'Порядок в цепочке может быть любым: батарейка → выключатель → лампочка → обратно к батарейке.',
-  'Ток должен проходить ЧЕРЕЗ выключатель. Если лампа горит, даже когда выключатель выключен — ты соединил её в обход!',
-  'Щёлкни по выключателю (клик без перетаскивания), чтобы замкнуть цепь, и жми ✅ Проверить.'],
-  palette:['battery','lamp','switch'],
-  demo:{vb:'0 0 340 160',closed:true,components:[{type:'battery',x:55,y:105},{type:'switch',x:170,y:105},{type:'lamp',x:285,y:105}],
-        wires:[['d0',1,'d1',0],['d1',1,'d2',0],['d2',1,'d0',0]]}},
- {n:3,title:'Две лампочки подряд',goal:'Соедини две лампочки одной цепочкой (последовательно): ток должен пройти через обе по очереди, и обе должны гореть.',
-  fact:'Старые новогодние гирлянды были последовательными: перегорала одна лампочка — гасла ВСЯ гирлянда! А ты знаешь почему?',
-  story:'Если детали идут одна за другой, как вагончики, — это последовательное соединение. Ток пробегает через все по очереди. Соедини батарейку и две лампочки в одну цепочку!',
-  hints:[
-  'Цепочка: «+» → лампочка → лампочка → «−». Ток проходит через обе лампы по очереди, как поезд через туннели.',
-  'Соедини правую клемму первой лампы с левой клеммой второй — получится «паровозик» из двух ламп. Нужно всего 3 провода.',
-  'Проверь себя: выбери одну лампу и нажми Delete — вторая тоже должна погаснуть. Если горит дальше — у тебя получилось параллельное соединение, а нужно одна цепочка!'],
-  palette:['battery','lamp'],
-  demo:{vb:'0 0 340 160',components:[{type:'battery',x:50,y:105},{type:'lamp',x:160,y:105},{type:'lamp',x:270,y:105}],
-        wires:[['d0',1,'d1',0],['d1',1,'d2',0],['d2',1,'d0',0]]}},
- {n:4,title:'Две лампочки параллельно',goal:'Подключи две лампочки параллельно — двумя отдельными веточками. Если одну убрать, вторая продолжит светить.',
-  fact:'В твоей квартире все лампы и розетки подключены параллельно — поэтому можно выключить одну лампу, и остальные продолжат работать.',
-  story:'А теперь хитрый трюк — параллельное соединение! Сделай для тока две дорожки-веточки между одними и теми же точками. Ток разделится, и каждая лампочка будет светить сама по себе — как лампы в доме!',
-  hints:[
-  'Соедини плюсы обеих лампочек с «+» батареи, а минусы — с «−». Получатся две отдельные веточки.',
-  'Представь две дорожки между одними и теми же точками: по одной ток бежит к первой лампе, по другой — ко второй.',
-  'Проверь себя: выбери одну лампу и нажми Delete — вторая должна продолжить гореть. Погасла — значит, лампы соединены одной цепочкой, а нужны веточки!'],
-  palette:['battery','lamp'],
-  demo:{vb:'0 0 340 200',components:[{type:'battery',x:60,y:100},{type:'lamp',x:245,y:40},{type:'lamp',x:245,y:160}],
-        wires:[['d0',1,'d1',0],['d0',1,'d2',0],['d1',1,'d0',0],['d2',1,'d0',0]]}},
- {n:5,title:'Моторчик',goal:'Собери цепь, чтобы моторчик крутился.',
-  fact:'У моторчиков постоянного тока есть интересное свойство: если поменять местами плюс и минус, он начнет крутиться в обратную сторону!',
-  story:'Ток не только светит — он умеет крутить! Моторчик превращает электричество во вращение. Подключи его к батарейке! Заметь: если поменять провода местами, он закрутится в другую сторону!',
-  hints:[
-  'Подключи провода от батарейки к обеим клеммам моторчика — как в первом уровне с лампой.',
-  'Чтобы изменить направление вращения, поменяй провода местами или поверни моторчик кнопкой ⟳.',
-  'Полярность меняет направление вращения: поменяй провода на моторе местами, чтобы он закрутился в другую сторону.'],
-  palette:['battery','motor'],
-  demo:{vb:'0 0 340 160',components:[{type:'battery',x:70,y:105},{type:'motor',x:250,y:105}],wires:[['d0',1,'d1',0],['d1',1,'d0',0]]}},
- {n:6,title:'Звонок и кнопка',goal:'Нажми кнопку — звонок звенит. Отпусти — замолкает.',
-  fact:'Дверной звонок работает именно так: кнопка замыкает цепь, только пока на неё нажимают. Поэтому звонок звонит, лишь когда держишь палец!',
-  story:'Дзынь! Кнопка — как выключатель, но замыкает цепь только пока её держишь. Собери цепь с кнопкой и звонком и понажимай кнопку!',
-  hints:[
-  'Цепочка: «+» → кнопка → звонок → «−». Полярность у кнопки и звонка не важна — соединяй как удобно.',
-  'Кнопку нужно УДЕРЖИВАТЬ нажатой: нажми и не отпускай, пока звонок звенит.',
-  'Звонок молчит? Ток должен идти ЧЕРЕЗ кнопку. Если звонит без нажатия — убери провод, идущий в обход кнопки.'],
-  palette:['battery','button','bell'],
-  demo:{vb:'0 0 340 160',pressed:true,components:[{type:'battery',x:55,y:105},{type:'button',x:170,y:105},{type:'bell',x:285,y:105}],
-        wires:[['d0',1,'d1',0],['d1',1,'d2',0],['d2',1,'d0',0]]}},
- {n:7,title:'Светодиод и полярность',goal:'Заставь светодиод светиться (ток должен входить через «+»).',
-  fact:'Светодиоды окружают нас повсюду: индикаторы роутера, экраны, светофоры и фонарики в смартфоне — это всё они!',
-  story:'Светодиод — LED — очень полезная деталь, но привередливая: ток должен входить в него через ножку «+», а выходить через «−». Подключи наоборот — и он не засветится!',
-  hints:[
-  'Светодиод светится, когда ток входит в его ножку «+» (левая клемма, с подписью «+» красным).',
-  'Не светится? Поверни светодиод кнопкой ⟳ (или клавишей R) или поменяй провода местами.',
-  'Знайка: стрелочка внутри треугольника светодиода показывает, куда току разрешено идти.'],
-  palette:['battery','led'],
-  demo:{vb:'0 0 340 160',components:[{type:'battery',x:70,y:105},{type:'led',x:250,y:105}],wires:[['d0',1,'d1',0],['d1',1,'d0',0]]}},
- {n:8,title:'Резистор — дозор тока',goal:'Поставь резистор в цепь с лампочкой: лампочка светится, но тусклее.',
-  fact:'Резисторы — самые распространённые детали на свете: в любом телефоне их сотни, и каждый стоит на «посту», охраняя цепь от лишнего напряжения!',
-  story:'Резистор — как узкий мостик или труба: он ограничивает ток, и лампочка светит слабее. Подключи резистор в цепочку с лампочкой прямо на пути тока!',
-  hints:[
-  'Резистор должен стоять В цепочке: «+» → резистор → лампочка → «−».',
-  'Лампочка будет светиться мягче — так и задумано! Значит, резистор ограничивает ток.',
-  'Не ставь резистор в отдельную веточку рядом с лампой — ток пойдёт мимо него, и лампа будет гореть в полный накал.'],
-  palette:['battery','lamp','resistor'],
-  demo:{vb:'0 0 340 160',components:[{type:'battery',x:50,y:105},{type:'resistor',x:160,y:105},{type:'lamp',x:275,y:105}],
-        wires:[['d0',1,'d1',0],['d1',1,'d2',0],['d2',1,'d0',0]]}},
- {n:9,title:'Сигнализация',goal:'Сделай две параллельные веточки: за одной кнопкой должны работать И лампочка, И звонок. Нажал — свет и звук, отпустил — тишина.',
-  fact:'В настоящих домах один выключатель часто управляет несколькими приборами сразу — точно так же, как твоя кнопка управляет и лампой, и звонком!',
-  story:'Отлично, ты уже знаешь про параллельные веточки! А теперь собери настоящий прибор: кнопка — «главный рубильник», а лампочка и звонок — две независимые веточки после неё. Получится сигнализация!',
-  hints:[
-  'Поставь кнопку в начало цепи, ДО развилки — она будет включать всё сразу.',
-  'После кнопки сделай развилку: одна веточка к лампочке, другая — к звонку. Обе возвращаются к «−» батарейки.',
-  'Проверь независимость: выбери звонок и нажми Delete — при нажатой кнопке лампа должна продолжать гореть.'],
-  palette:['battery','button','lamp','bell'],
-  demo:{vb:'0 0 340 200',pressed:true,components:[{type:'battery',x:55,y:145},{type:'button',x:160,y:145},{type:'lamp',x:275,y:80},{type:'bell',x:275,y:170}],
-        wires:[['d0',1,'d1',0],['d1',1,'d2',0],['d1',1,'d3',0],['d2',1,'d0',0],['d3',1,'d0',0]]}},
- {n:10,title:'Два замка',goal:'Лампочка должна гореть, только когда выключатель ВКЛЮЧЕН и кнопка НАЖАТА одновременно. Иначе — темнота!',
-  fact:'Так устроена защита многих станков и игрушек: пока не «закрыты» все условия (крышка, кнопка, рычаг), механизм не запустится.',
-  story:'Хочешь секрет? Поставь выключатель и кнопку ОДНОЙ цепочкой с лампочкой. Тогда лампа загорится, только когда открыты оба «замка»: выключатель включен И кнопка нажата!',
-  hints:[
-  'Собери один «паровозик»: «+» → выключатель → кнопка → лампочка → «−».',
-  'Если лампа горит без нажатия кнопки — ток идёт в обход неё. Убери лишний провод!',
-  'Проверь все варианты: лампа горит ТОЛЬКО когда выключатель включён и кнопка зажата.'],
-  palette:['battery','switch','button','lamp'],
-  demo:{vb:'0 0 340 160',closed:true,pressed:true,components:[{type:'battery',x:40,y:105},{type:'switch',x:122,y:105},{type:'button',x:204,y:105},{type:'lamp',x:288,y:105}],
-        wires:[['d0',1,'d1',0],['d1',1,'d2',0],['d2',1,'d3',0],['d3',1,'d0',0]]}},
- {n:11,title:'Свободная песочница',sandbox:true,goal:'Свободная игра: собери любую схему из всех деталей!',
-  story:'Ты прошёл все уроки, юный электрик! Теперь — свобода: все детали твои. Собирай любые схемы, экспериментируй, изобретай!',
-  hints:[
-  'Попробуй собрать сигнализацию: кнопка + звонок + лампа. Нажал — свет и звук!',
-  'Проверь разницу: лампы последовательно гаснут все разом, а параллельно — каждая сама по себе.',
-  'Светодиод + резистор + батарейка = настоящий фонарик! Правильно подключи полярность.'],
-  palette:['battery','lamp','switch','button','motor','bell','led','resistor'],demo:null},
-];
+/* ── генератор лучей и бегущих точек по пути ── */
+function makeRays(g,cx,cy,r1,r2,skipTop,className){
+  for(let a=-150;a<=150;a+=30){
+    if(skipTop&&a===-90) continue;
+    const rad=a*Math.PI/180,s=Math.sin(rad),c=Math.cos(rad);
+    const l=document.createElementNS(NS,'line');
+    l.setAttribute('x1',cx+r1*s); l.setAttribute('y1',cy-r1*c);
+    l.setAttribute('x2',cx+r2*s); l.setAttribute('y2',cy-r2*c);
+    l.setAttribute('stroke','var(--u)'); l.setAttribute('stroke-width','4');
+    l.setAttribute('stroke-linecap','round'); l.setAttribute('class',className||'hero-ray');
+    g.appendChild(l);
+  }
+}
+function makeRunners(g,count,color,r){
+  const arr=[];
+  for(let i=0;i<count;i++){
+    const c=document.createElementNS(NS,'circle');
+    c.setAttribute('r',r); c.setAttribute('fill',color);
+    c.setAttribute('stroke','var(--ink)'); c.setAttribute('stroke-width','1.6');
+    g.appendChild(c); arr.push(c);
+  }
+  return arr;
+}
+function placeOnPath(path,els,off){
+  const L=path.getTotalLength();
+  els.forEach((el,i)=>{
+    const p=((i*L/els.length+off)%L+L)%L, pt=path.getPointAtLength(p);
+    el.setAttribute('cx',pt.x); el.setAttribute('cy',pt.y);
+  });
+}
 
-/* ================= состояние ================= */
-const S={components:[],wires:[],sel:null,selWire:null};
-let LV=null, sim=null, prevShort=false, prevClosed=false, pendingRender=false;
-function loadProgress(){
-  const clean={unlocked:1,stars:{}};
-  try{
-    const p=JSON.parse(localStorage.getItem('ye_progress')||'null');
-    if(!p||typeof p!=='object'||Array.isArray(p))return clean;
-    const unlocked=Number(p.unlocked);
-    if(Number.isFinite(unlocked))clean.unlocked=clamp(Math.floor(unlocked),1,LEVELS.length);
-    if(p.stars&&typeof p.stars==='object'&&!Array.isArray(p.stars)){
-      LEVELS.forEach(l=>{
-        if(l.sandbox)return;
-        const n=Number(p.stars[l.n]);
-        if(Number.isFinite(n)&&n>0)clean.stars[l.n]=clamp(Math.floor(n),1,3);
-      });
+/* ── крутилка ── */
+class Dial{
+  constructor(mount,o){
+    this.min=o.min; this.max=o.max; this.step=o.step; this.color=o.color;
+    this.unit=o.unit; this.label=o.label; this.onInput=o.onInput;
+    this.value=o.value;
+    const svg=this.svg=document.createElementNS(NS,'svg');
+    svg.setAttribute('viewBox','0 0 110 110'); svg.classList.add('dial-svg');
+    svg.setAttribute('role','slider'); svg.setAttribute('tabindex','0');
+    svg.setAttribute('aria-label',o.aria); svg.setAttribute('aria-valuemin',o.min);
+    svg.setAttribute('aria-valuemax',o.max);
+    const plate=document.createElementNS(NS,'circle');
+    plate.setAttribute('cx',55); plate.setAttribute('cy',55); plate.setAttribute('r',50);
+    plate.setAttribute('fill','#fff'); plate.setAttribute('stroke','var(--ink)'); plate.setAttribute('stroke-width','2.5');
+    svg.appendChild(plate);
+    for(let k=0;k<=8;k++){
+      const a=-135+k*33.75, rad=a*Math.PI/180, s=Math.sin(rad), c=Math.cos(rad);
+      const edge=(k===0||k===8);
+      const l=document.createElementNS(NS,'line');
+      l.setAttribute('x1',55+41*s); l.setAttribute('y1',55-41*c);
+      l.setAttribute('x2',55+(edge?48:45)*s); l.setAttribute('y2',55-(edge?48:45)*c);
+      l.setAttribute('stroke','var(--ink)'); l.setAttribute('stroke-width',edge?3.5:2.2);
+      l.setAttribute('opacity',edge?.8:.4);
+      svg.appendChild(l);
     }
-  }catch(e){}
-  return clean;
-}
-let progress=loadProgress();
-function saveProgress(){try{localStorage.setItem('ye_progress',JSON.stringify(progress));}catch(e){}}
-
-/* ================= симуляция (ИСПРАВЛЕНО) ================= */
-function simulate(components,wires,opts){
-  opts=opts||{};
-  const res={on:{},wireDir:{},closed:false,short:false,dim:false};
-  const bat=components.find(c=>c.type==='battery');
-  if(!bat)return res;
-
-  const ignored=id=>opts.ignore&&opts.ignore.has(id);
-  const unscrewed=id=>opts.unscrewed&&opts.unscrewed.has(id);
-
-  // Светодиоды, отключённые из-за неверной полярности
-  const offLeds=new Set();
-
-  const isConducting=c=>{
-    if(unscrewed(c.id)) return false;
-    if(c.type==='battery')return false;
-    if(c.type==='switch')return opts.switchState?opts.switchState==='closed':!!c.props.closed;
-    if(c.type==='button')return opts.buttonState?opts.buttonState==='pressed':!!c.props.pressed;
-    if(c.type==='led')return !offLeds.has(c.id);
-    return true;
-  };
-  const plus=bat.id+':1', minus=bat.id+':0';
-
-  /* ---- короткое замыкание: прямая связь + и − без нагрузки ---- */
-  const uf=new Map();
-  components.forEach(c=>COMP[c.type].terms.forEach((t,i)=>uf.set(c.id+':'+i,c.id+':'+i)));
-  const find=n=>{while(uf.get(n)!==n){uf.set(n,uf.get(uf.get(n)));n=uf.get(n);}return n;};
-  const uni=(a,b)=>{a=find(a);b=find(b);if(a!==b)uf.set(a,b);};
-  wires.forEach(w=>{if(!ignored(w.a.c)&&!ignored(w.b.c))uni(w.a.c+':'+w.a.t,w.b.c+':'+w.b.t);});
-  components.forEach(c=>{if((c.type==='switch'||c.type==='button')&&isConducting(c))uni(c.id+':0',c.id+':1');});
-  if(find(plus)===find(minus)){
-    res.short=true;
-    components.forEach(c=>res.on[c.id]={on:false});
-    return res;
-  }
-
-  /* ---- построение графа; skipId — деталь, у которой "убираем" внутреннее ребро ---- */
-  function buildAdj(skipId){
-    const adj=new Map();
-    components.forEach(c=>COMP[c.type].terms.forEach((t,i)=>adj.set(c.id+':'+i,[])));
-    const addE=(a,b)=>{adj.get(a).push(b);adj.get(b).push(a);};
-    wires.forEach(w=>{if(!ignored(w.a.c)&&!ignored(w.b.c))addE(w.a.c+':'+w.a.t,w.b.c+':'+w.b.t);});
-    components.forEach(c=>{
-      if(c.id===skipId) return;
-      if(!ignored(c.id)&&isConducting(c))addE(c.id+':0',c.id+':1');
+    this.rotor=document.createElementNS(NS,'g');
+    const knob=document.createElementNS(NS,'circle');
+    knob.setAttribute('cx',55); knob.setAttribute('cy',55); knob.setAttribute('r',33);
+    knob.setAttribute('fill',this.color); knob.setAttribute('stroke','var(--ink)'); knob.setAttribute('stroke-width','2.5');
+    const ptr=document.createElementNS(NS,'line');
+    ptr.setAttribute('x1',55); ptr.setAttribute('y1',55); ptr.setAttribute('x2',55); ptr.setAttribute('y2',30);
+    ptr.setAttribute('stroke','var(--ink)'); ptr.setAttribute('stroke-width','5'); ptr.setAttribute('stroke-linecap','round');
+    const hub=document.createElementNS(NS,'circle');
+    hub.setAttribute('cx',55); hub.setAttribute('cy',55); hub.setAttribute('r',5); hub.setAttribute('fill','var(--ink)');
+    this.rotor.append(knob,ptr,hub); svg.appendChild(this.rotor);
+    mount.appendChild(svg);
+    let drag=false;
+    const handle=e=>{
+      const rc=svg.getBoundingClientRect();
+      const dx=e.clientX-(rc.left+rc.width/2), dy=e.clientY-(rc.top+rc.height/2);
+      let th=Math.atan2(dx,-dy)*180/Math.PI;
+      th=clamp(th,-135,135);
+      this.set(this.min+(th+135)/270*(this.max-this.min),true);
+    };
+    svg.addEventListener('pointerdown',e=>{drag=true; svg.setPointerCapture(e.pointerId); handle(e);});
+    svg.addEventListener('pointermove',e=>{if(drag)handle(e);});
+    svg.addEventListener('pointerup',()=>drag=false);
+    svg.addEventListener('pointercancel',()=>drag=false);
+    svg.addEventListener('wheel',e=>{e.preventDefault();
+      this.set(this.value+(e.deltaY>0?-1:1)*this.step,true);},{passive:false});
+    svg.addEventListener('keydown',e=>{
+      const k=e.key; let d=0;
+      if(k==='ArrowRight'||k==='ArrowUp')d=this.step;
+      if(k==='ArrowLeft'||k==='ArrowDown')d=-this.step;
+      if(k==='Home')this.set(this.min,true);
+      if(k==='End')this.set(this.max,true);
+      if(d){e.preventDefault(); this.set(this.value+d,true);}
     });
-    return adj;
+    this.render();
   }
-  function bfs(adj,start){
-    const R=new Set([start]);
-    const d=new Map([[start,0]]);
-    const q=[start];
-    while(q.length){
-      const n=q.shift();
-      for(const m of (adj.get(n)||[])){
-        if(!R.has(m)){R.add(m);d.set(m,d.get(n)+1);q.push(m);}
-      }
-    }
-    return {R,d};
+  set(v,fire){
+    v=clamp(Math.round((v-this.min)/this.step)*this.step+this.min,this.min,this.max);
+    v=Math.round(v*10)/10;
+    if(v!==this.value){this.value=v; this.render(); if(fire&&this.onInput)this.onInput(v);}
   }
-
-  /* ---- итеративно отключаем светодиоды, включённые не той стороной ---- */
-  for(let iter=0;iter<=components.length;iter++){
-    const adj=buildAdj(null);
-    const r=bfs(adj,plus);
-    if(!r.R.has(minus)) break;
-    let changed=false;
-    components.forEach(c=>{
-      if(c.type!=='led'||offLeds.has(c.id)||ignored(c.id)||unscrewed(c.id))return;
-      const d0=r.d.get(c.id+':0'), d1=r.d.get(c.id+':1');
-      if(d0!==undefined && d1!==undefined && d1<d0){
-        offLeds.add(c.id); changed=true;
-      }
-    });
-    if(!changed) break;
+  render(){
+    const a=-135+(this.value-this.min)/(this.max-this.min)*270;
+    this.rotor.setAttribute('transform',`rotate(${a} 55 55)`);
+    this.svg.setAttribute('aria-valuenow',this.value);
   }
+}
 
-  /* ---- финальный граф ---- */
-  const fullAdj=buildAdj(null);
-  const rpFull=bfs(fullAdj,plus);
-  res.closed=rpFull.R.has(minus);
+/* ── искры-конфетти ── */
+const SPARK_COLORS=['#F2A007','#18A78E','#E2593B','#F5C542','#26221B'];
+function burst(x,y){
+  if(reduced) return;
+  for(let i=0;i<14;i++){
+    const s=document.createElement('div'); s.className='spark';
+    s.style.background=SPARK_COLORS[i%SPARK_COLORS.length];
+    s.style.left=x+'px'; s.style.top=y+'px';
+    document.body.appendChild(s);
+    const ang=Math.random()*Math.PI*2, d=45+Math.random()*60;
+    const dx=Math.cos(ang)*d, dy=Math.sin(ang)*d-20;
+    s.animate([
+      {transform:'translate(0,0) rotate(45deg) scale(1)',opacity:1},
+      {transform:`translate(${dx}px,${dy+30}px) rotate(${180+Math.random()*260}deg) scale(.25)`,opacity:0}
+    ],{duration:550+Math.random()*350,easing:'cubic-bezier(.15,.6,.3,1)'}).onfinish=()=>s.remove();
+  }
+}
 
-  /* ---- направление анимации тока в проводах ---- */
-  wires.forEach(w=>{
-    const a=w.a.c+':'+w.a.t, b=w.b.c+':'+w.b.t;
-    if(rpFull.R.has(a)&&rpFull.R.has(b)&&rpFull.d.has(a)&&rpFull.d.has(b))
-      res.wireDir[w.id]=rpFull.d.get(a)<=rpFull.d.get(b)?1:-1;
+/* ═══ ГЕРОЙ-ЦЕПЬ ═══ */
+const heroSvg=$('heroSvg');
+makeRays($('heroRays'),190,84,32,44,false);
+const heroLoop=heroSvg.querySelector('.wire-outer');
+const heroRunners=makeRunners($('heroSparks'),10,'var(--i)',4.5);
+let heroOn=false, heroOff=0;
+function heroToggle(){
+  heroOn=!heroOn;
+  heroSvg.classList.toggle('on',heroOn);
+  heroSvg.setAttribute('aria-pressed',heroOn);
+  heroSvg.setAttribute('aria-label',heroOn?'Выключить цепь':'Включить цепь');
+  if(heroOn) setTimeout(()=>{
+    const r=heroSvg.getBoundingClientRect();
+    burst(r.left+r.width*190/380,r.top+r.height*84/300);
+  },150);
+}
+ $('heroScene').addEventListener('click',heroToggle);
+heroSvg.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();heroToggle();}});
+
+/* ═══ ЛАБОРАТОРИЯ ═══ */
+const labLoop=document.querySelector('#labSvg .wire-outer');
+const labRunners=makeRunners($('electrons'),16,'var(--i)',5.5);
+makeRays($('lampRays'),0,0,42,56,true,'lab-ray');
+
+const lab={U:4.5,R:3,dispI:1.5};
+const amNeedle=$('amNeedle'), lampGlowC=$('lampGlowC'), lampRays=$('lampRays'),
+      crossInk=$('crossInk'), crossHot=$('crossHot'),
+      svgU=$('svgU'), svgR=$('svgR'), svgI=$('svgI'),
+      lfU=$('lfU'), lfR=$('lfR'), lfI=$('lfI'),
+      profBubble=$('profBubble');
+let lastSvgI='', lastLfI='', profTimer=null;
+
+function profSay(text){
+  if(profBubble.dataset.cur===text) return;
+  profBubble.dataset.cur=text;
+  clearTimeout(profTimer);
+  profBubble.style.opacity=0;
+  profTimer=setTimeout(()=>{profBubble.textContent=text; profBubble.style.opacity=1;},170);
+}
+function updateProf(){
+  const I=lab.U/lab.R;
+  if(I>=8.5)      profSay('Осторожно! Такой ток перегревает лампочку — в жизни она давно бы перегорела!');
+  else if(I>=6)   profSay('Вот это скорость! Ток большой — лампочка светит вовсю. Видишь: U большое, R маленькое.');
+  else if(I>=2.5) profSay('Хороший рабочий ток! Заряды бегут бодро, лампочке комфортно.');
+  else if(I>=1)   profSay('Спокойный режим: электроны бегут неспешно, лампочка светит мягко.');
+  else            profSay('Ток едва ползёт: либо батарейка слабенькая, либо сопротивление слишком упрямое.');
+}
+function onDial(){
+  svgU.textContent=fmt(lab.U)+' В';
+  svgR.textContent=fmt(lab.R)+' Ом';
+  lfU.textContent=fmt(lab.U)+' В';
+  lfR.textContent=fmt(lab.R)+' Ом';
+  $('dialUVal').textContent=fmt(lab.U)+' В';
+  $('dialRVal').textContent=fmt(lab.R)+' Ом';
+  const I=lab.U/lab.R, sI=fmt(I)+' А';
+  svgI.textContent=sI; lfI.textContent=sI; lastSvgI=sI; lastLfI=sI;
+  updateProf();
+  // Без анимации показания и свечение обновляются сразу, без общего цикла.
+  if(reduced){lab.dispI=I;labTick(0);}
+}
+new Dial($('dialU'),{min:1.5,max:9,step:.5,value:4.5,color:'var(--u)',aria:'Напряжение U, вольты',
+  onInput:v=>{lab.U=v; onDial();}});
+new Dial($('dialR'),{min:1,max:10,step:.5,value:3,color:'var(--r)',aria:'Сопротивление R, омы',
+  onInput:v=>{lab.R=v; onDial();}});
+onDial();
+
+let lastTxtU='',lastTxtR='';
+function labTick(dt){
+  const target=lab.U/lab.R;
+  lab.dispI+=(target-lab.dispI)*Math.min(1,dt*9);
+  const I=lab.dispI;
+  // электроны
+  placeOnPath(labLoop,labRunners,(labRunners._s=(labRunners._s||0)+I*30*dt));
+  // стрелка амперметра
+  amNeedle.setAttribute('transform',`rotate(${-60+clamp(I,0,9.5)/9*120})`);
+  // цифры
+  const sI=fmt(target)+' А';
+  if(sI!==lastSvgI){svgI.textContent=sI; lastSvgI=sI;}
+  if(sI!==lastLfI){lfI.textContent=sI; lastLfI=sI;}
+  // свечение лампы от мощности
+  const g=clamp(lab.U*I/55,0,1);
+  lampGlowC.setAttribute('opacity',(g*.92).toFixed(3));
+  lampRays.setAttribute('opacity',Math.max(0,(g-.55)/.45).toFixed(3));
+  crossHot.setAttribute('opacity',g.toFixed(3));
+  crossInk.setAttribute('opacity',(1-g*.8).toFixed(3));
+}
+
+/* ═══ ВОДА ═══ */
+const dropsG=$('drops'), drops=[];
+for(let i=0;i<14;i++){
+  const c=document.createElementNS(NS,'circle');
+  c.setAttribute('r',6); c.setAttribute('fill','var(--i)');
+  c.setAttribute('stroke','var(--ink)'); c.setAttribute('stroke-width','1.6');
+  dropsG.appendChild(c); drops.push({x:150+i*49});
+}
+let impA=0;
+function waterTick(dt){
+  const v=lab.dispI*38;
+  drops.forEach((d,i)=>{
+    let k=1; if(d.x>436&&d.x<564)k=1.85;   // в узкой трубе быстрее
+    d.x+=v*k*dt; if(d.x>838)d.x-=688;
+    dropsG.childNodes[i].setAttribute('cx',d.x);
+    dropsG.childNodes[i].setAttribute('cy',105);
   });
-
-  /* ---- по каждой детали: течёт ли через неё ток от + к − ---- */
-  components.forEach(c=>{
-    if(ignored(c.id) || unscrewed(c.id)){res.on[c.id]={on:false};return;}
-    if(c.type==='battery'){res.on[c.id]={on:res.closed};return;}
-    if(c.type==='led' && offLeds.has(c.id)){res.on[c.id]={on:false,reverse:true};return;}
-
-    // Граф БЕЗ этой детали: ищем путь "плюс → t0" и "t1 → минус" (или наоборот)
-    const adj=buildAdj(c.id);
-    const Rp=bfs(adj,plus).R;
-    const Rm=bfs(adj,minus).R;
-    const t0=c.id+':0', t1=c.id+':1';
-    const fwd=Rp.has(t0) && Rm.has(t1);
-    const rev=Rp.has(t1) && Rm.has(t0);
-    // Ни один потребитель не работает без полного пути от «+» обратно к «−».
-    const on=res.closed && (fwd || rev);
-    res.on[c.id]={on, reverse:rev && !fwd, fwd:res.closed&&fwd, rev:res.closed&&rev};
-  });
-
-  res.dim=components.some(c=>res.on[c.id]&&res.on[c.id].on&&c.type==='resistor');
-  return res;
+  impA+=lab.dispI*140*dt;
+  $('impeller').setAttribute('transform',`rotate(${impA})`);
 }
 
-/* ================= геометрия и отрисовка ================= */
-const svg=$('#canvas'), gWires=$('#gWires'), gComps=$('#gComps'), gTerms=$('#gTerms'), gTemp=$('#tempwire');
-let boardW=1000,boardH=640,wireTap=null;
-function compactLayout(){return window.matchMedia('(max-width:720px), (max-width:1000px) and (orientation:portrait)').matches;}
-function compById(id){return S.components.find(c=>c.id===id);}
-function termPos(c,i){const t=COMP[c.type].terms[i];const p=rotPt(t.x,t.y,c.rot||0);return{x:c.x+p.x,y:c.y+p.y};}
-function termDir(c,i){const t=COMP[c.type].terms[i];const d=rotPt(Math.sign(t.x),0,c.rot||0);return d.x||d.y?d:{x:1,y:0};}
-function wireD(p1,d1,p2,d2){
-  const k=clamp(dist(p1,p2)*0.35,18,36);
-  const c1={x:p1.x+d1.x*k,y:p1.y+d1.y*k},c2={x:p2.x+d2.x*k,y:p2.y+d2.y*k};
-  return 'M'+p1.x+' '+p1.y+' C '+c1.x+' '+c1.y+', '+c2.x+' '+c2.y+', '+p2.x+' '+p2.y;
-}
-function circuitMarkup(cs,ws,sm,mini){
-  let out='';
-  ws.forEach(w=>{
-    const A=termPosOf(cs,w.a),B=termPosOf(cs,w.b);
-    const d=wireD(A,dirOf(cs,w.a),B,dirOf(cs,w.b));
-    const fd=sm.wireDir[w.id];
-    out+='<g class="wireg'+(S.selWire===w.id&&!mini?' selected':'')+'"'+(mini?'':' data-wire="'+w.id+'"')+'>'+
-      '<path class="whit" d="'+d+'"'+(mini?'':' data-wire="'+w.id+'"')+'/>'+
-      '<path class="wpath" d="'+d+'" style="stroke:'+(mini?'#546e7a':w.color)+'"/>'+
-      (fd?'<path class="curr '+(fd>0?'fw':'bw')+'" d="'+d+'"/>':'')+'</g>';
-  });
-  const cnt={};
-  ws.forEach(w=>{cnt[w.a.c+':'+w.a.t]=(cnt[w.a.c+':'+w.a.t]||0)+1;cnt[w.b.c+':'+w.b.t]=(cnt[w.b.c+':'+w.b.t]||0)+1;});
-  cs.forEach(c=>COMP[c.type].terms.forEach((t,i)=>{
-    if((cnt[c.id+':'+i]||0)>=1){const p=termPos(c,i);out+='<circle cx="'+p.x+'" cy="'+p.y+'" r="4.5" fill="#41545e"/>';}
-  }));
-  cs.forEach(c=>{
-    const st=sm.on[c.id]||{on:false};
-    out+='<g class="comp"'+(mini?'':' data-comp="'+c.id+'"')+' transform="translate('+c.x+','+c.y+') rotate('+(c.rot||0)+')">'+(mini?'':E('title',{},COMP[c.type].name+' — кликни, чтобы выделить; кнопки ⟳ и 🗑 сверху'))+COMP[c.type].draw(c,st,sm)+'</g>';
-  });
-  if(!mini){
-    cs.forEach(c=>COMP[c.type].terms.forEach((t,i)=>{
-      const p=termPos(c,i), d=termDir(c,i);
-      let tip='',label=null;
-      if(c.type==='battery'){
-        label=i===0?{txt:'−',cls:'neg'}:{txt:'+',cls:'pos'};
-        tip=i===0?'Батарейка «−» — сюда ток ВОЗВРАЩАЕТСЯ':'Батарейка «+» — отсюда ток ВЫХОДИТ';
-      }else if(c.type==='led' || c.type==='motor'){
-        label=i===0?{txt:'+',cls:'pos'}:{txt:'−',cls:'neg'};
-        tip=i===0?COMP[c.type].name+' «+»':COMP[c.type].name+' «−»';
-        if (c.type === 'motor') tip += ' (от полярности зависит направление вращения)';
-      }else{
-        label={txt:'↔',cls:'any'};
-        tip=COMP[c.type].name+' (полярность не важна — подключай как удобно)';
-      }
-      out+=E('circle',{class:'term-hit','data-comp':c.id,'data-term':i,cx:p.x,cy:p.y,r:compactLayout()?34:22},'<title>'+tip+'</title>');
-      out+=E('circle',{class:'term'+(c.type==='battery'?(i===0?' neg':' pos'):''),'data-comp':c.id,'data-term':i,cx:p.x,cy:p.y,r:7.5},'<title>'+tip+'</title>');
-      if(label)out+=E('text',{class:'plabel '+label.cls,x:p.x+d.x*15.5,y:p.y+d.y*15.5+5.5,'text-anchor':'middle'},label.txt);
-    }));
-  }
-  return out;
-}
-function termPosOf(cs,ref){const c=cs.find(x=>x.id===ref.c);return c?termPos(c,ref.t):{x:0,y:0};}
-function dirOf(cs,ref){const c=cs.find(x=>x.id===ref.c);return c?termDir(c,ref.t):{x:1,y:0};}
-
-function render(){
-  sim=simulate(S.components,S.wires);
-  gWires.innerHTML=circuitMarkup(S.components,S.wires,sim,false);
-  const hint=$('#emptyHint');
-  if(S.components.length===0&&!LV.sandbox){
-    hint.classList.remove('hidden');
-    hint.innerHTML=compactLayout()
-      ?'Перетащи детали из панели сверху ↑<br>или коснись детали, а затем поля.<br>Соедини <b>кружочки-клеммы</b> проводами!'
-      :'Перетащи детали сюда из панели слева ←<br>и соедини <b>кружочки-клеммы</b> проводами!';
-  }else if(S.components.length===0&&LV.sandbox){
-    hint.classList.remove('hidden');
-    hint.innerHTML=compactLayout()
-      ?'Свободная игра! Выбирай детали сверху ↑<br>и соединяй <b>кружочки</b> проводами.'
-      :'Свободная игра! Перетаскивай любые детали ←<br>и соединяй <b>кружочки</b> проводами.';
-  }else hint.classList.add('hidden');
-  updateTools();
-  if(sim.closed&&!prevClosed&&!sim.short){sDing();toast('⚡ Цепь замкнута — ток побежал!');}
-  prevClosed=sim.closed;
-  if(sim.short&&!prevShort){sSpark();toast('🔥 Короткое замыкание! Убери лишний провод, батарейка перегрелась!');}
-  prevShort=sim.short;
-}
-function requestRender(){if(pendingRender)return;pendingRender=true;requestAnimationFrame(()=>{pendingRender=false;render();});}
-
-function svgPoint(e){
-  const pt=svg.createSVGPoint();pt.x=e.clientX;pt.y=e.clientY;
-  const m=svg.getScreenCTM();if(!m)return null;
-  const p=pt.matrixTransform(m.inverse());
-  return {x:clamp(p.x,40,boardW-40),y:clamp(p.y,40,boardH-40)};
-}
-function resizeBoard(){
-  const nextW=compactLayout()?600:1000;
-  const nextH=compactLayout()?900:640;
-  if(nextW===boardW&&nextH===boardH){svg.setAttribute('viewBox','0 0 '+boardW+' '+boardH);return;}
-  const oldW=boardW,oldH=boardH;
-  boardW=nextW;boardH=nextH;
-  svg.setAttribute('viewBox','0 0 '+boardW+' '+boardH);
-  S.components.forEach(c=>{
-    c.x=snap(clamp(c.x/oldW*boardW,60,boardW-60));
-    c.y=snap(clamp(c.y/oldH*boardH,60,boardH-60));
-  });
-  wireTap=null;gTemp.innerHTML='';svg.classList.remove('wiring');$('#wireTip').classList.remove('show');
-  if(LV&&!$('#game').classList.contains('hidden'))render();
-}
-function svgToScreen(x,y){
-  const pt=svg.createSVGPoint();pt.x=x;pt.y=y;
-  const m=svg.getScreenCTM();if(!m)return{x:0,y:0};
-  const q=pt.matrixTransform(m);
-  const r=$('#stage').getBoundingClientRect();
-  return{x:q.x-r.left,y:q.y-r.top};
-}
-function updateTools(){
-  const t=$('#comptools');
-  const c=S.sel!==null&&compById(S.sel);
-  if(c){
-    const p=svgToScreen(c.x,c.y-52);
-    t.style.left=p.x+'px';t.style.top=(p.y-6)+'px';
-    $('#toolRot').style.display='';
-    t.classList.remove('hidden');
-    return;
-  }
-  const w=S.selWire!==null&&S.wires.find(x=>x.id===S.selWire);
-  if(w){
-    const A=termPosOf(S.components,w.a),B=termPosOf(S.components,w.b);
-    const mid=svgToScreen((A.x+B.x)/2,(A.y+B.y)/2);
-    t.style.left=mid.x+'px';t.style.top=(mid.y-14)+'px';
-    $('#toolRot').style.display='none';
-    t.classList.remove('hidden');
-    return;
-  }
-  t.classList.add('hidden');
-}
-
-/* ================= мини-схема для подсказок ================= */
-function demoSVG(def){
-  if(!def)return '';
-  const cs=def.components.map((c,i)=>({id:'d'+i,type:c.type,x:c.x,y:c.y,rot:0,
-    props:{closed:def.closed!==false,pressed:!!def.pressed}}));
-  const ws=def.wires.map((w,i)=>({id:'dw'+i,color:'#546e7a',a:{c:w[0],t:w[1]},b:{c:w[2],t:w[3]}}));
-  const sm=simulate(cs,ws);
-  return '<svg viewBox="'+def.vb+'" xmlns="'+SVG+'">'+circuitMarkup(cs,ws,sm,true)+'</svg>';
-}
-
-/* ================= теория: Азбука электрика ================= */
-function flowDotsPath(d,opts){
-  opts=opts||{};
-  const color=opts.color||'#ff5252',r=opts.r||4.5,per=opts.per||3,dur=opts.dur||2.4,seed=opts.seed||0;
-  let out='';
-  for(let k=0;k<per;k++)out+=E('circle',{r:r,fill:color,stroke:'#fff','stroke-width':1},
-    E('animateMotion',{dur:dur+'s',repeatCount:'indefinite',path:d,begin:(-(seed+k*dur/per)).toFixed(2)+'s'}));
-  return out;
-}
-function flowDots(cs,ws,sm,opts){
-  let out='';const o=opts||{};
-  ws.forEach((w,wi)=>{
-    if(!sm.wireDir[w.id])return;
-    const A=termPosOf(cs,w.a),B=termPosOf(cs,w.b);
-    out+=flowDotsPath(wireD(A,dirOf(cs,w.a),B,dirOf(cs,w.b)),{color:o.color,r:o.r,per:o.per,dur:o.dur,seed:wi*0.45});
-  });
-  return out;
-}
-function theoryCircuit(def,opts){
-  const cs=def.components.map((c,i)=>({id:'d'+i,type:c.type,x:c.x,y:c.y,rot:0,props:{closed:def.closed!==false,pressed:!!def.pressed}}));
-  const ws=def.wires.map((w,i)=>({id:'dw'+i,color:'#546e7a',a:{c:w[0],t:w[1]},b:{c:w[2],t:w[3]}}));
-  const sm=simulate(cs,ws);
-  return '<svg viewBox="'+def.vb+'" xmlns="'+SVG+'">'+circuitMarkup(cs,ws,sm,true)+flowDots(cs,ws,sm,opts)+'</svg>';
-}
-function waterSVG(){
-  const d='M60 40 H280 Q305 40 305 65 V85 Q305 110 280 110 H60 Q35 110 35 85 V65 Q35 40 60 40 Z';
-  let drops='';
-  for(let k=0;k<8;k++)drops+=E('circle',{r:4,fill:'#4fc3f7',stroke:'#0288d1','stroke-width':1},
-    E('animateMotion',{dur:'3.2s',repeatCount:'indefinite',path:d,begin:(-k*0.4)+'s'}));
-  return '<svg viewBox="0 0 340 150">'+
-    E('path',{d:d,fill:'none',stroke:'#bde3f8','stroke-width':13,'stroke-linecap':'round'})+
-    E('path',{d:d,fill:'none',stroke:'#8ed0f0','stroke-width':7,'stroke-linecap':'round'})+
-    drops+
-    '<g transform="translate(60,75)"><circle r="17" fill="#ffd54f" stroke="#a07600" stroke-width="3"/><g class="rotor2"><path d="M0 -12 L4 0 L0 12 L-4 0 Z" fill="#a07600"/><path d="M-12 0 L0 -4 L12 0 L0 4 Z" fill="#a07600" opacity="0.7"/></g></g>'+
-    '<g transform="translate(280,75)"><circle r="19" fill="#eceff1" stroke="#37474f" stroke-width="3"/><g class="rotor2"><path d="M0 -15 V15 M-15 0 H15 M-11 -11 L11 11 M-11 11 L11 -11" stroke="#90a4ae" stroke-width="3.5" fill="none"/></g><circle r="4" fill="#37474f"/></g>'+
-    E('text',{x:60,y:140,'font-size':12,fill:'#51646e','text-anchor':'middle','font-weight':'bold'},'насос = батарейка')+
-    E('text',{x:280,y:140,'font-size':12,fill:'#51646e','text-anchor':'middle','font-weight':'bold'},'колесо = лампочка')+
-    '</svg>';
-}
-function towerSVG(){
-  return '<svg viewBox="0 0 340 150">'+
-    '<g transform="translate(30,10)">'+
-    E('path',{d:'M10 40 L50 40 L40 110 L20 110 Z',fill:'#cfd8dc'})+
-    E('rect',{x:0,y:0,width:60,height:40,rx:5,fill:'#4fc3f7',stroke:'#0288d1','stroke-width':3})+
-    E('path',{d:'M60 30 H120 Q130 30 130 40 V110',fill:'none',stroke:'#8ed0f0','stroke-width':10})+
-    flowDotsPath('M60 30 H120 Q130 30 130 40 V110',{color:'#0288d1',r:3,per:3,dur:1.5})+
-    E('text',{x:30,y:-5,'font-size':12,'text-anchor':'middle','font-weight':'bold'},'Большое напряжение')+
-    E('text',{x:30,y:135,'font-size':11,'text-anchor':'middle',fill:'#51646e'},'(сильный напор)')+
-    '</g>'+
-    '<g transform="translate(190,70)">'+
-    E('path',{d:'M10 40 L50 40 L40 50 L20 50 Z',fill:'#cfd8dc'})+
-    E('rect',{x:0,y:0,width:60,height:40,rx:5,fill:'#4fc3f7',stroke:'#0288d1','stroke-width':3})+
-    E('path',{d:'M60 30 H120 Q130 30 130 40 V50',fill:'none',stroke:'#8ed0f0','stroke-width':4})+
-    flowDotsPath('M60 30 H120 Q130 30 130 40 V50',{color:'#0288d1',r:1.5,per:2,dur:2.5})+
-    E('text',{x:30,y:-5,'font-size':12,'text-anchor':'middle','font-weight':'bold'},'Малое напряжение')+
-    E('text',{x:30,y:75,'font-size':11,'text-anchor':'middle',fill:'#51646e'},'(слабый напор)')+
-    '</g>'+
-    '</svg>';
-}
-function batterySVG(){
-  const loop='M220 80 H272 Q292 80 292 58 V22 Q292 2 272 2 H68 Q48 2 48 22 V58 Q48 80 68 80 H100';
-  return '<svg viewBox="0 0 340 205">'+
-    '<g transform="translate(160,80)">'+
-      E('rect',{x:-60,y:-22,width:120,height:44,rx:10,fill:'#ffd54f',stroke:'#a07600','stroke-width':3.5})+
-      E('text',{x:-50,y:10,'font-size':30,fill:'#1565c0','font-weight':'bold','font-family':'Arial'},'−')+
-      E('text',{x:34,y:9,'font-size':26,fill:'#c62828','font-weight':'bold','font-family':'Arial'},'+')+
-      E('circle',{cx:-60,cy:0,r:6.5,fill:'#fff',stroke:'#1e88e5','stroke-width':3})+
-      E('circle',{cx:60,cy:0,r:6.5,fill:'#fff',stroke:'#e53935','stroke-width':3})+
-    '</g>'+
-    E('path',{d:loop,fill:'none',stroke:'#90a4ae','stroke-width':5,'stroke-linecap':'round'})+
-    flowDotsPath(loop,{color:'#ff5252',r:5,per:4,dur:2.6})+
-    '<path d="M186 -3 L166 3 L186 9 Z" fill="#ef476f"/>'+
-    E('text',{x:240,y:104,'font-size':12,fill:'#c62828','text-anchor':'middle','font-weight':'bold'},'ток ВЫХОДИТ из «+»')+
-    E('text',{x:80,y:104,'font-size':12,fill:'#1565c0','text-anchor':'middle','font-weight':'bold'},'и ВОЗВРАЩАЕТСЯ в «−»')+
-    '<g transform="translate(70,152)">'+COMP.led.draw({},{on:true},{})+'</g>'+
-    E('text',{x:70,y:198,'font-size':11.5,fill:'#41545e','text-anchor':'middle'},'светодиоду важно, где «+»!')+
-    '<g transform="translate(250,152)">'+COMP.lamp.draw({},{on:true},{})+'</g>'+
-    E('text',{x:250,y:198,'font-size':11.5,fill:'#41545e','text-anchor':'middle'},'лампочке — всё равно!')+
-    '</svg>';
-}
-function shortSVG(){
-  const cs=[{id:'d0',type:'battery',x:170,y:105,rot:0,props:{}}];
-  const ws=[{id:'w0',color:'#546e7a',a:{c:'d0',t:1},b:{c:'d0',t:0}}];
-  const sm=simulate(cs,ws);
-  const wire='M202 105 Q170 25 138 105';
-  return '<svg viewBox="0 0 340 150">'+
-    circuitMarkup(cs,[],sm,true)+
-    E('path',{d:wire,fill:'none',stroke:'#ef5350','stroke-width':5,'stroke-linecap':'round'})+
-    flowDotsPath(wire,{color:'#ffd180',r:4,per:5,dur:1})+
-    E('circle',{cx:202,cy:105,r:5,fill:'#41545e'})+
-    E('circle',{cx:138,cy:105,r:5,fill:'#41545e'})+
-    E('text',{x:170,y:16,'font-size':11.5,fill:'#d84315','text-anchor':'middle','font-weight':'bold'},'ток мчит насквозь, никуда не завернув!')+
-    E('text',{x:232,y:52,'font-size':28,'text-anchor':'middle'},'🔥')+
-    '</svg>';
-}
-
-/* ============ SVG для новых разделов теории ============ */
-
-/* Закон Ома — треугольник U = I × R */
-function ohmSVG(){
-  return '<svg viewBox="0 0 340 230">'+
-    E('path',{d:'M170 25 L45 185 L295 185 Z',fill:'#eef7fb',stroke:'#118ab2','stroke-width':4,'stroke-linejoin':'round'})+
-    E('text',{x:170,y:95,'font-size':54,'font-weight':'bold','text-anchor':'middle',fill:'#118ab2','font-family':'Arial'},'U')+
-    E('text',{x:100,y:168,'font-size':54,'font-weight':'bold','text-anchor':'middle',fill:'#2fb46f','font-family':'Arial'},'I')+
-    E('text',{x:242,y:168,'font-size':54,'font-weight':'bold','text-anchor':'middle',fill:'#ff9f1c','font-family':'Arial'},'R')+
-    E('text',{x:170,y:218,'font-size':16,'text-anchor':'middle',fill:'#41545e','font-weight':'bold'},'U = I × R')+
-    '</svg>';
-}
-
-/* Мощность — сравнение 40 Вт и 100 Вт */
-function powerSVG(){
-  let s='<svg viewBox="0 0 340 160">';
-  // Лампа 40 Вт — тусклая
-  s+='<g transform="translate(90,65)">';
-  s+=E('circle',{r:26,fill:'#ffd23f',opacity:0.3,filter:'url(#blur5)'});
-  s+=E('circle',{r:18,fill:'#ffe9a8',stroke:'#37474f','stroke-width':3});
-  s+=E('path',{d:'M-10 -10 L10 10 M-10 10 L10 -10',stroke:'#37474f','stroke-width':3,'stroke-linecap':'round',fill:'none'});
-  s+='</g>';
-  s+=E('text',{x:90,y:118,'font-size':16,'font-weight':'bold','text-anchor':'middle',fill:'#51646e'},'40 Вт 💡');
-  s+=E('text',{x:90,y:140,'font-size':12,'text-anchor':'middle',fill:'#7d939e'},'тускло, экономно');
-  // Лампа 100 Вт — яркая
-  s+='<g transform="translate(250,65)">';
-  s+=E('circle',{r:42,fill:'#ffd23f',opacity:0.55,filter:'url(#blur5)'});
-  (function(){
-    let rays='';
-    for(let i=0;i<8;i++){const a=i*Math.PI/4;
-      rays+=E('line',{x1:Math.cos(a)*23,y1:Math.sin(a)*23,x2:Math.cos(a)*33,y2:Math.sin(a)*33,stroke:'#ffb300','stroke-width':3.5,'stroke-linecap':'round'});}
-    s+=E('g',{class:'rays'},rays);
-  })();
-  s+=E('circle',{r:18,fill:'#ffe066',stroke:'#37474f','stroke-width':3});
-  s+=E('path',{d:'M-10 -10 L10 10 M-10 10 L10 -10',stroke:'#37474f','stroke-width':3,'stroke-linecap':'round',fill:'none'});
-  s+='</g>';
-  s+=E('text',{x:250,y:118,'font-size':16,'font-weight':'bold','text-anchor':'middle',fill:'#51646e'},'100 Вт 💡💡');
-  s+=E('text',{x:250,y:140,'font-size':12,'text-anchor':'middle',fill:'#7d939e'},'ярко, больше энергии');
-  s+='</svg>';
-  return s;
-}
-
-/* Постоянный (DC) и переменный (AC) ток */
-function acdcSVG(){
-  const dcPath='M30 80 H150';
-  const acPath='M190 80 Q205 40 220 80 T250 80 T280 80 T310 80';
-  return '<svg viewBox="0 0 340 170">'+
-    E('text',{x:90,y:28,'font-size':14,'font-weight':'bold','text-anchor':'middle',fill:'#118ab2'},'Постоянный (DC) 🔋')+
-    E('path',{d:dcPath,fill:'none',stroke:'#90a4ae','stroke-width':4,'stroke-linecap':'round'})+
-    flowDotsPath(dcPath,{color:'#ff5252',r:5,per:4,dur:2})+
-    E('path',{d:'M120 68 l14 12 l-14 12 z',fill:'#ff5252'})+
-    E('text',{x:90,y:110,'font-size':11.5,'text-anchor':'middle',fill:'#41545e'},'ток всегда в одну сторону →')+
-    E('text',{x:90,y:128,'font-size':11.5,'text-anchor':'middle',fill:'#41545e'},'батарейки, аккумуляторы')+
-    E('text',{x:250,y:28,'font-size':14,'font-weight':'bold','text-anchor':'middle',fill:'#ef476f'},'Переменный (AC) 🔌')+
-    E('path',{d:acPath,fill:'none',stroke:'#90a4ae','stroke-width':4,'stroke-linecap':'round'})+
-    E('path',{d:'M228 58 l12 -10 l0 8 l14 0 l0 4 l-14 0 l0 8 z',fill:'#ef476f'})+
-    E('path',{d:'M286 102 l-12 10 l0 -8 l-14 0 l0 -4 l14 0 l0 -8 z',fill:'#ef476f'})+
-    E('text',{x:250,y:110,'font-size':11.5,'text-anchor':'middle',fill:'#41545e'},'ток бежит туда-сюда ↔')+
-    E('text',{x:250,y:128,'font-size':11.5,'text-anchor':'middle',fill:'#41545e'},'розетки дома, 50 полных колебаний в секунду')+
-    '</svg>';
-}
-
-/* Как работает батарейка — разрез с ионами */
-function batteryChemSVG(){
-  let ions='';
-  for(let i=0;i<4;i++){
-    ions+=E('circle',{r:4,fill:'#ef476f'},E('animateMotion',{dur:'2.6s',repeatCount:'indefinite',path:'M240 78 H85',begin:(-i*0.65)+'s'}));
-  }
-  for(let i=0;i<4;i++){
-    ions+=E('circle',{r:4,fill:'#1e88e5'},E('animateMotion',{dur:'2.6s',repeatCount:'indefinite',path:'M100 108 H255',begin:(-i*0.65)+'s'}));
-  }
-  return '<svg viewBox="0 0 340 195">'+
-    E('path',{d:'M74 28 Q170 6 266 28',fill:'none',stroke:'#546e7a','stroke-width':3,'stroke-dasharray':'5 4'})+
-    E('text',{x:170,y:16,'font-size':11,'text-anchor':'middle',fill:'#546e7a'},'электроны бегут по проводу')+
-    E('rect',{x:40,y:40,width:260,height:100,rx:10,fill:'#fdf6d8',stroke:'#a07600','stroke-width':3})+
-    E('rect',{x:60,y:52,width:14,height:76,rx:3,fill:'#ef476f'})+
-    E('rect',{x:266,y:52,width:14,height:76,rx:3,fill:'#1e88e5'})+
-    E('text',{x:67,y:38,'font-size':22,'font-weight':'bold','text-anchor':'middle',fill:'#ef476f','font-family':'Arial'},'+')+
-    E('text',{x:273,y:38,'font-size':22,'font-weight':'bold','text-anchor':'middle',fill:'#1e88e5','font-family':'Arial'},'−')+
-    E('text',{x:170,y:145,'font-size':13,'text-anchor':'middle',fill:'#8a6400','font-weight':'bold'},'электролит (жидкость-проводник)')+
-    ions+
-    E('text',{x:170,y:182,'font-size':13,'text-anchor':'middle',fill:'#41545e','font-weight':'bold'},'химическая реакция толкает заряды!')+
-    '</svg>';
-}
-
-/* Молния — ток в небе */
-function lightningSVG(){
-  let negCharges='';
-  for(let i=0;i<6;i++){
-    negCharges+=E('text',{x:65+i*20,y:58,'font-size':18,fill:'#1e88e5','text-anchor':'middle','font-weight':'bold'},'−');
-  }
-  let posCharges='';
-  for(let i=0;i<6;i++){
-    posCharges+=E('text',{x:55+i*45,y:165,'font-size':18,fill:'#ef476f','text-anchor':'middle','font-weight':'bold'},'+');
-  }
-  return '<svg viewBox="0 0 340 200">'+
-    E('ellipse',{cx:120,cy:48,rx:72,ry:30,fill:'#b0bec5',stroke:'#546e7a','stroke-width':3})+
-    E('ellipse',{cx:78,cy:58,rx:40,ry:26,fill:'#b0bec5',stroke:'#546e7a','stroke-width':3})+
-    E('ellipse',{cx:172,cy:58,rx:46,ry:28,fill:'#b0bec5',stroke:'#546e7a','stroke-width':3})+
-    negCharges+
-    E('rect',{x:20,y:172,width:300,height:20,rx:3,fill:'#8d6e63'})+
-    E('line',{x1:20,y1:172,x2:320,y2:172,stroke:'#5d4037','stroke-width':2})+
-    posCharges+
-    E('path',{d:'M140 78 L118 130 L152 124 L128 175 L182 108 L150 116 Z',
-      fill:'#ffd54f',stroke:'#ff9f1c','stroke-width':3,'stroke-linejoin':'round',class:'rays'})+
-    E('text',{x:250,y:80,'font-size':28,class:'rays'},'⚡')+
-    E('text',{x:170,y:196,'font-size':12,'text-anchor':'middle',fill:'#41545e','font-weight':'bold'},'Облако заряжается — и БАМ! Разряд в землю.')+
-    '</svg>';
-}
-
-/* Великие изобретатели */
-function inventorsSVG(){
-  return '<svg viewBox="0 0 360 160">'+
-    '<g transform="translate(60,42)">'+
-      E('circle',{r:38,fill:'#e3f2fd',stroke:'#118ab2','stroke-width':3})+
-      E('text',{y:14,'font-size':44,'text-anchor':'middle'},'👨‍🔬')+
-    '</g>'+
-    E('text',{x:60,y:108,'font-size':12,'font-weight':'bold','text-anchor':'middle',fill:'#17546b'},'Алессандро Вольта')+
-    E('text',{x:60,y:125,'font-size':11,'text-anchor':'middle',fill:'#51646e'},'создал первую батарейку')+
-    E('text',{x:60,y:140,'font-size':11,'text-anchor':'middle',fill:'#51646e'},'(вольтов столб, 1800 г.)')+
-    '<g transform="translate(180,42)">'+
-      E('circle',{r:38,fill:'#fff8e1',stroke:'#ff9f1c','stroke-width':3})+
-      E('text',{y:14,'font-size':44,'text-anchor':'middle'},'💡')+
-    '</g>'+
-    E('text',{x:180,y:108,'font-size':12,'font-weight':'bold','text-anchor':'middle',fill:'#17546b'},'Томас Эдисон')+
-    E('text',{x:180,y:125,'font-size':11,'text-anchor':'middle',fill:'#51646e'},'улучшил лампочку —')+
-    E('text',{x:180,y:140,'font-size':11,'text-anchor':'middle',fill:'#51646e'},'осветил целые города')+
-    '<g transform="translate(300,42)">'+
-      E('circle',{r:38,fill:'#f3e5f5',stroke:'#9b5de5','stroke-width':3})+
-      E('text',{y:14,'font-size':44,'text-anchor':'middle'},'⚡')+
-    '</g>'+
-    E('text',{x:300,y:108,'font-size':12,'font-weight':'bold','text-anchor':'middle',fill:'#17546b'},'Никола Тесла')+
-    E('text',{x:300,y:125,'font-size':11,'text-anchor':'middle',fill:'#51646e'},'придумал переменный ток')+
-    E('text',{x:300,y:140,'font-size':11,'text-anchor':'middle',fill:'#51646e'},'для всего мира')+
-    '</svg>';
-}
-
-/* Условные обозначения схем */
-function schematicSymbol(t){
-  switch(t){
-    case 'battery': return E('g',{},
-      E('line',{x1:-8,y1:-16,x2:-8,y2:16,stroke:'#2b3a42','stroke-width':3})+
-      E('line',{x1:-2,y1:-9,x2:-2,y2:9,stroke:'#2b3a42','stroke-width':6})+
-      E('line',{x1:5,y1:-16,x2:5,y2:16,stroke:'#2b3a42','stroke-width':3})+
-      E('line',{x1:11,y1:-9,x2:11,y2:9,stroke:'#2b3a42','stroke-width':6})+
-      E('line',{x1:-30,y1:0,x2:-8,y2:0,stroke:'#2b3a42','stroke-width':3})+
-      E('line',{x1:11,y1:0,x2:30,y2:0,stroke:'#2b3a42','stroke-width':3}));
-    case 'lamp': return E('g',{},
-      E('circle',{r:18,fill:'none',stroke:'#2b3a42','stroke-width':3})+
-      E('line',{x1:-13,y1:-13,x2:13,y2:13,stroke:'#2b3a42','stroke-width':3})+
-      E('line',{x1:-13,y1:13,x2:13,y2:-13,stroke:'#2b3a42','stroke-width':3})+
-      E('line',{x1:-30,y1:0,x2:-18,y2:0,stroke:'#2b3a42','stroke-width':3})+
-      E('line',{x1:18,y1:0,x2:30,y2:0,stroke:'#2b3a42','stroke-width':3}));
-    case 'switch': return E('g',{},
-      E('circle',{cx:-12,cy:0,r:3.5,fill:'#2b3a42'})+
-      E('circle',{cx:12,cy:0,r:3.5,fill:'#2b3a42'})+
-      E('line',{x1:-12,y1:0,x2:10,y2:-14,stroke:'#2b3a42','stroke-width':3})+
-      E('line',{x1:-30,y1:0,x2:-12,y2:0,stroke:'#2b3a42','stroke-width':3})+
-      E('line',{x1:12,y1:0,x2:30,y2:0,stroke:'#2b3a42','stroke-width':3}));
-    case 'resistor': return E('g',{},
-      E('rect',{x:-18,y:-9,width:36,height:18,fill:'none',stroke:'#2b3a42','stroke-width':3})+
-      E('line',{x1:-30,y1:0,x2:-18,y2:0,stroke:'#2b3a42','stroke-width':3})+
-      E('line',{x1:18,y1:0,x2:30,y2:0,stroke:'#2b3a42','stroke-width':3}));
-    case 'led': return E('g',{},
-      E('path',{d:'M-13 -14 L-13 14 L13 0 Z',fill:'none',stroke:'#2b3a42','stroke-width':3,'stroke-linejoin':'round'})+
-      E('line',{x1:13,y1:-14,x2:13,y2:14,stroke:'#2b3a42','stroke-width':3})+
-      E('line',{x1:-30,y1:0,x2:-13,y2:0,stroke:'#2b3a42','stroke-width':3})+
-      E('line',{x1:13,y1:0,x2:30,y2:0,stroke:'#2b3a42','stroke-width':3})+
-      E('path',{d:'M20 -22 l8 -6 M22 -22 l0 8',stroke:'#2b3a42','stroke-width':2.5,fill:'none','stroke-linecap':'round'}));
-  }
-  return '';
-}
-function symbolsSVG(){
-  const items=[
-    {t:'battery',name:'Батарейка'},
-    {t:'lamp',name:'Лампа'},
-    {t:'switch',name:'Выключатель'},
-    {t:'resistor',name:'Резистор'},
-    {t:'led',name:'Светодиод'},
-  ];
-  let s='<svg viewBox="0 0 440 150">';
-  items.forEach((it,i)=>{
-    const x = 52 + i*88;
-    s+='<g transform="translate('+x+',70)">'+schematicSymbol(it.t)+'</g>';
-    s+=E('text',{x:x,y:130,'font-size':12.5,'text-anchor':'middle','font-weight':'bold',fill:'#17546b'},it.name);
-  });
-  s+='</svg>';
-  return s;
-}
-
-/* Экономия электричества — карточки-иконки */
-function saveEnergySVG(){
-  const tips=[
-    {e:'💡',t:'Гаси свет, когда выходишь из комнаты'},
-    {e:'🔌',t:'Вынимай зарядки из розетки'},
-    {e:'❄️',t:'Закрывай дверцу холодильника'},
-    {e:'⏰',t:'Выключай технику из режима ожидания'},
-  ];
-  let s='<svg viewBox="0 0 400 220">';
-  tips.forEach((tip,i)=>{
-    const x = 105 + (i%2)*190;
-    const y = 55 + Math.floor(i/2)*100;
-    s+='<g transform="translate('+x+','+y+')">';
-    s+=E('rect',{x:-85,y:-38,width:170,height:76,rx:16,fill:'#f2fbf5',stroke:'#2fb46f','stroke-width':2.5});
-    s+=E('text',{x:-55,y:14,'font-size':36,'text-anchor':'middle'},tip.e);
-    const words = tip.t.split(' ');
-    const mid = Math.ceil(words.length/2);
-    const l1 = words.slice(0,mid).join(' ');
-    const l2 = words.slice(mid).join(' ');
-    s+=E('text',{x:20,y:l2?-4:6,'font-size':11,'text-anchor':'middle','font-weight':'bold',fill:'#17546b'},l1);
-    if(l2) s+=E('text',{x:20,y:11,'font-size':11,'text-anchor':'middle','font-weight':'bold',fill:'#17546b'},l2);
-    s+='</g>';
-  });
-  s+='</svg>';
-  return s;
-}
-
-/* ---------- теория: электричество дома ---------- */
-function homeSVG(){
-  return '<svg viewBox="0 0 340 200">'
-   +E('path',{d:'M150 70 L240 70 L240 172 L150 172 Z',fill:'#fff8e1',stroke:'#8d6e63','stroke-width':3})
-   +E('path',{d:'M142 72 L195 30 L248 72 Z',fill:'#ff8a65',stroke:'#bf5f3f','stroke-width':3,'stroke-linejoin':'round'})
-   +E('rect',{x:168,y:112,width:26,height:60,rx:3,fill:'#a1887f',stroke:'#5d4037','stroke-width':2.5})
-   +E('rect',{x:205,y:96,width:26,height:20,rx:4,fill:'#fff',stroke:'#546e7a','stroke-width':2.5})
-   +E('circle',{cx:214,cy:106,r:3,fill:'#37474f'})+E('circle',{cx:222,cy:106,r:3,fill:'#37474f'})
-   +E('text',{x:218,y:136,'font-size':10,'text-anchor':'middle',fill:'#51646e'},'розетка')
-   +E('rect',{x:155,y:84,width:22,height:17,rx:3,fill:'#eceff1',stroke:'#546e7a','stroke-width':2.5})
-   +E('text',{x:166,y:97,'font-size':10,'text-anchor':'middle','font-weight':'bold',fill:'#d84315'},'А')
-   +E('text',{x:166,y:78,'font-size':10,'text-anchor':'middle',fill:'#51646e'},'счётчик')
-   +E('rect',{x:56,y:88,width:56,height:36,rx:6,fill:'#fff',stroke:'#546e7a','stroke-width':3})
-   +E('path',{d:'M66 106 h10 l4 -12 l6 22 l4 -10 h16',stroke:'#ef476f','stroke-width':3,fill:'none','stroke-linecap':'round','stroke-linejoin':'round'})
-   +E('text',{x:84,y:140,'font-size':10,'text-anchor':'middle',fill:'#51646e'},'предохранитель')
-   +E('path',{d:'M20 60 H90 Q100 60 100 70 V120 H150',fill:'none',stroke:'#90a4ae','stroke-width':5,'stroke-linecap':'round'})
-   +E('text',{x:16,y:40,'font-size':12,'font-weight':'bold',fill:'#41545e'},'от улицы — 220 В')
-   +E('text',{x:195,y:194,'font-size':11,'text-anchor':'middle',fill:'#51646e'},'провода прячут в стены, розетки заземляют')
-   +'</svg>';
-}
-/* ---------- теория: статическое электричество ---------- */
-function staticSVG(){
-  let bits='';
-  for(let i=0;i<5;i++)bits+=E('rect',{x:52+i*24,y:118+((i%2)*10),width:11,height:7,rx:1,fill:'#fff',stroke:'#78909c','stroke-width':1.5,transform:'rotate('+(i*21-36)+' '+(57+i*24)+' 121)'});
-  return '<svg viewBox="0 0 340 190">'
-   +E('text',{x:85,y:32,'font-size':13,'font-weight':'bold','text-anchor':'middle',fill:'#7b1fa2'},'расчёска и бумажки')
-   +E('rect',{x:48,y:58,width:58,height:15,rx:6,fill:'#ab47bc',stroke:'#6a1b9a','stroke-width':2.5})
-   +E('rect',{x:100,y:60,width:28,height:11,rx:4,fill:'#8e24aa',stroke:'#6a1b9a','stroke-width':2.5})
-   +E('path',{d:'M56 73 v14 M67 73 v16 M78 73 v14 M89 73 v16 M100 73 v14',stroke:'#6a1b9a','stroke-width':3,'stroke-linecap':'round'})
-   +E('path',{d:'M104 62 q16 -10 24 2 M106 68 q13 -2 20 8',stroke:'#ba68c8','stroke-width':2,fill:'none','stroke-dasharray':'3 3'})
-   +bits
-   +E('text',{x:85,y:162,'font-size':10.5,'text-anchor':'middle',fill:'#51646e'},'потёр — и расчёска притянула бумажки!')
-   +E('text',{x:255,y:32,'font-size':13,'font-weight':'bold','text-anchor':'middle',fill:'#7b1fa2'},'шарик и волосы')
-   +E('circle',{cx:255,cy:100,r:38,fill:'#ef5350',stroke:'#b71c1c','stroke-width':3,opacity:0.92})
-   +E('path',{d:'M243 66 q-6 -12 0 -20 M255 60 q-2 -14 8 -18 M269 66 q6 -12 0 -20',stroke:'#4a148c','stroke-width':2.5,fill:'none','stroke-linecap':'round'})
-   +E('text',{x:255,y:162,'font-size':10.5,'text-anchor':'middle',fill:'#51646e'},'натёртый шарик «липнет» к волосам')
-   +'</svg>';
-}
-/* ---------- теория: живые батарейки ---------- */
-function natureSVG(){
-  let z='';
-  for(let i=0;i<3;i++)z+=E('path',{d:'M'+(146+i*16)+' 76 l-6 12 h8 l-6 12',stroke:'#ffd54f','stroke-width':3,fill:'none','stroke-linecap':'round','stroke-linejoin':'round',class:'rays'});
-  return '<svg viewBox="0 0 340 190">'
-   +E('text',{x:88,y:30,'font-size':13,'font-weight':'bold','text-anchor':'middle',fill:'#00838f'},'электрический угорь')
-   +E('ellipse',{cx:88,cy:95,rx:62,ry:26,fill:'#8d6e63',stroke:'#4e342e','stroke-width':3})
-   +E('path',{d:'M146 95 q26 -16 30 2 q3 14 -14 12',fill:'none',stroke:'#4e342e','stroke-width':3})
-   +E('circle',{cx:44,cy:88,r:3.5,fill:'#263238'})
-   +E('path',{d:'M60 78 l7 -9 l7 9 M82 76 l7 -9 l7 9',stroke:'#ffd54f','stroke-width':3,fill:'none','stroke-linecap':'round','stroke-linejoin':'round'})
-   +z
-   +E('text',{x:88,y:152,'font-size':10.5,'text-anchor':'middle',fill:'#51646e'},'до 860 вольт — как 70 батареек!')
-   +E('text',{x:258,y:30,'font-size':13,'font-weight':'bold','text-anchor':'middle',fill:'#00838f'},'твои нервы')
-   +E('circle',{cx:258,cy:88,r:20,fill:'#ffcc80',stroke:'#e65100','stroke-width':3})
-   +E('path',{d:'M276 84 q22 -10 30 6 M276 94 q24 4 30 20 M266 106 q4 22 -8 32',stroke:'#e65100','stroke-width':3,fill:'none','stroke-linecap':'round'})
-   +E('path',{d:'M280 76 l8 -8 M284 86 l10 -4',stroke:'#ffd54f','stroke-width':3,'stroke-linecap':'round'})
-   +E('text',{x:258,y:152,'font-size':10.5,'text-anchor':'middle',fill:'#51646e'},'мозг говорит с мышцами током!')
-   +'</svg>';
-}
-/* ---------- теория: аккумуляторы ---------- */
-function accuSVG(){
-  const cyc='M52 92 h70 q14 0 14 -14 v-18 q0 -14 14 -14 h66';
-  return '<svg viewBox="0 0 340 180">'
-   +E('rect',{x:26,y:68,width:26,height:48,rx:6,fill:'#90a4ae',stroke:'#546e7a','stroke-width':3})
-   +E('rect',{x:52,y:58,width:222,height:68,rx:12,fill:'#ffd54f',stroke:'#a07600','stroke-width':3.5})
-   +E('text',{x:74,y:102,'font-size':30,fill:'#1565c0','font-weight':'bold','font-family':'Arial'},'−')
-   +E('text',{x:234,y:100,'font-size':26,fill:'#c62828','font-weight':'bold','font-family':'Arial'},'+')
-   +E('path',{d:cyc,fill:'none',stroke:'#b2dfdb','stroke-width':5,'stroke-linecap':'round','stroke-dasharray':'1 9'})
-   +flowDotsPath(cyc,{color:'#2fb46f',r:4.5,per:3,dur:2.2})
-   +E('text',{x:170,y:28,'font-size':12,'font-weight':'bold','text-anchor':'middle',fill:'#00695c'},'зарядка = обратная химическая реакция')
-   +E('text',{x:170,y:158,'font-size':11,'text-anchor':'middle',fill:'#51646e'},'заряжаем — ток вгоняем внутрь; работаем — ток выгоняем наружу')
-   +'</svg>';
-}
-/* ---------- теория: зелёная энергия ---------- */
-function greenSVG(){
-  return '<svg viewBox="0 0 340 190">'
-   +E('circle',{cx:54,cy:42,r:20,fill:'#ffd54f',stroke:'#ff9f1c','stroke-width':3,class:'rays'})
-   +E('rect',{x:24,y:94,width:68,height:38,rx:4,fill:'#1565c0',stroke:'#0d3c78','stroke-width':3})
-   +E('path',{d:'M28 103 h60 M28 113 h60 M28 123 h60 M43 96 v34 M58 96 v34 M73 96 v34',stroke:'#90caf9','stroke-width':1.6})
-   +E('text',{x:58,y:152,'font-size':11,'font-weight':'bold','text-anchor':'middle',fill:'#17546b'},'солнце')
-   +E('line',{x1:170,y1:122,x2:170,y2:62,stroke:'#78909c','stroke-width':5})
-   +'<g transform="translate(170,60)"><g class="rotor2">'
-   +E('path',{d:'M0 0 Q10 -22 0 -34 Q-10 -22 0 0 Z',fill:'#eceff1',stroke:'#546e7a','stroke-width':2.5})
-   +'<g transform="rotate(120)">'+E('path',{d:'M0 0 Q10 -22 0 -34 Q-10 -22 0 0 Z',fill:'#eceff1',stroke:'#546e7a','stroke-width':2.5})+'</g>'
-   +'<g transform="rotate(240)">'+E('path',{d:'M0 0 Q10 -22 0 -34 Q-10 -22 0 0 Z',fill:'#eceff1',stroke:'#546e7a','stroke-width':2.5})+'</g>'
-   +E('circle',{r:4.5,fill:'#37474f'})
-   +'</g></g>'
-   +E('text',{x:170,y:152,'font-size':11,'font-weight':'bold','text-anchor':'middle',fill:'#17546b'},'ветер')
-   +E('path',{d:'M248 132 h70 v-22 h-70 Z',fill:'#8d6e63',stroke:'#5d4037','stroke-width':2.5})
-   +E('path',{d:'M258 110 q6 -26 14 -32 l10 32 Z',fill:'#4fc3f7',stroke:'#0288d1','stroke-width':2.5})
-   +E('text',{x:283,y:152,'font-size':11,'font-weight':'bold','text-anchor':'middle',fill:'#17546b'},'вода')
-   +'</svg>';
-}
-/* ---------- теория: сверхпроводники ---------- */
-function supercondSVG(){
-  return '<svg viewBox="0 0 340 180">'
-   +E('text',{x:230,y:30,'font-size':22,'font-weight':'bold','text-anchor':'middle',fill:'#1565c0','font-family':'Arial'},'0 Ом!')
-   +E('rect',{x:70,y:48,width:200,height:44,rx:20,fill:'#e3f2fd',stroke:'#1565c0','stroke-width':3.5})
-   +E('rect',{x:90,y:60,width:42,height:17,rx:4,fill:'#90caf9',stroke:'#1565c0','stroke-width':2})
-   +E('rect',{x:140,y:60,width:42,height:17,rx:4,fill:'#90caf9',stroke:'#1565c0','stroke-width':2})
-   +E('circle',{cx:112,cy:94,r:6,fill:'#37474f'})+E('circle',{cx:230,cy:94,r:6,fill:'#37474f'})
-   +E('path',{d:'M60 114 q10 -10 20 0 M110 114 q10 -10 20 0 M160 114 q10 -10 20 0 M210 114 q10 -10 20 0',stroke:'#90a4ae','stroke-width':2.5,fill:'none'})
-   +E('rect',{x:40,y:130,width:260,height:14,rx:7,fill:'#cfd8dc',stroke:'#546e7a','stroke-width':3})
-   +E('text',{x:170,y:124,'font-size':12,'font-weight':'bold','text-anchor':'middle',fill:'#c62828'},'магнитный подъём — поезд парит над рельсом!')
-   +E('text',{x:170,y:168,'font-size':11,'text-anchor':'middle',fill:'#51646e'},'сверхпровода охлаждают почти до −270 °C')
-   +'</svg>';
-}
-/* ---------- теория: как крутится мотор ---------- */
-function motorHowSVG(){
-  return '<svg viewBox="0 0 340 190">'
-   +E('rect',{x:40,y:52,width:36,height:84,rx:8,fill:'#ef5350',stroke:'#b71c1c','stroke-width':3})
-   +E('text',{x:58,y:102,'font-size':18,'font-weight':'bold','text-anchor':'middle',fill:'#fff','font-family':'Arial'},'N')
-   +E('rect',{x:264,y:52,width:36,height:84,rx:8,fill:'#42a5f5',stroke:'#1565c0','stroke-width':3})
-   +E('text',{x:282,y:102,'font-size':18,'font-weight':'bold','text-anchor':'middle',fill:'#fff','font-family':'Arial'},'S')
-   +'<g transform="translate(170,94)">'
-   +E('ellipse',{rx:52,ry:30,fill:'none',stroke:'#ff9f1c','stroke-width':6})
-   +'<g class="rotor2">'+E('line',{x1:-52,y1:0,x2:52,y2:0,stroke:'#ff9f1c','stroke-width':6,'stroke-linecap':'round'})+'</g>'
-   +E('circle',{r:7,fill:'#6d4c41'})
-   +'</g>'
-   +E('path',{d:'M118 94 H76 M222 94 H264',stroke:'#37474f','stroke-width':3.5})
-   +flowDotsPath('M76 94 H118',{color:'#ef476f',r:4,per:2,dur:1.4})
-   +flowDotsPath('M222 94 H264',{color:'#ef476f',r:4,per:2,dur:1.4})
-   +E('text',{x:170,y:40,'font-size':12.5,'font-weight':'bold','text-anchor':'middle',fill:'#e65100'},'магниты толкают катушку — она крутится!')
-   +E('text',{x:170,y:170,'font-size':11,'text-anchor':'middle',fill:'#51646e'},'«переключатель» внутри мотора разворачивает ток вовремя')
-   +'</svg>';
-}
-
-const COMPINFO={
- battery:'Источник тока. Из «+» ток выходит, в «−» возвращается.',
- lamp:'Светится, когда через неё бежит ток. Полярность не важна.',
- switch:'«Калитка» для тока: щёлк — разомкнута, ещё щёлк — замкнута.',
- button:'Замыкает цепь, пока держишь её нажатой. Как дверной звонок!',
- motor:'Превращает ток во вращение. Поменяешь провода — поменяешь направление!',
- bell:'Звенит, когда по нему бежит ток. Дзынь!',
- led:'Яркий индикатор. Светится только при правильной полярности!',
- resistor:'Специально ограничивает ток, чтобы другие детали не перегрелись.'
+/* ═══ МАГИЧЕСКИЙ ТРЕУГОЛЬНИК ═══ */
+const TRI={
+  U:{title:'Ищем напряжение U',f:'U = I × R',t:'Закрой U пальцем — буквы I и R остались рядом, через знак умножения. Значит, чтобы найти напряжение, умножь ток на сопротивление.',e:'2 А × 6 Ом = 12 В'},
+  I:{title:'Ищем ток I',f:'I = U ÷ R',t:'Закрой I — напряжение U осталось наверху, а сопротивление R внизу, на другом «этаже». Разные этажи — значит, делим: U на R.',e:'12 В ÷ 6 Ом = 2 А'},
+  R:{title:'Ищем сопротивление R',f:'R = U ÷ I',t:'Закрой R — снова U наверху, I внизу. Делим напряжение на ток — и получаем сопротивление.',e:'12 В ÷ 2 А = 6 Ом'}
 };
-
-/* ================= интерактивная викторина ================= */
-const QUIZ=[
- {q:'Что нужно, чтобы по цепи побежал ток?',
-  opts:['Замкнутый путь от «+» к «−»','Очень длинные провода','Много лампочек','Большая коробка для деталей'],a:0,
-  why:'Ток бежит только по замкнутой цепи — от плюса к минусу. Разрыв — и ток останавливается.'},
- {q:'Что делает выключатель?',
-  opts:['Создаёт ток','Хранит электричество','Превращает ток в свет','Размыкает и замыкает цепь'],a:3,
-  why:'Выключатель — «калитка» для тока: замкнул — ток бежит, разомкнул — остановился.'},
- {q:'Две лампочки включены ПАРАЛЛЕЛЬНО. Что будет, если одну выкрутить?',
-  opts:['Погаснет вторая','Сгорит батарейка','Вторая продолжит гореть','Погаснет всё сразу'],a:2,
-  why:'При параллельном соединении у тока две дорожки: одна лампа погасла — по второй ток бежит дальше.'},
- {q:'Светодиод не светится. Что попробовать первым делом?',
-  opts:['Позвать кота','Поменять полярность (перевернуть)','Смочить пальцы','Покрутить лампочку'],a:1,
-  why:'Светодиоду важна полярность: ток должен входить в ножку «+». Перевернул — и вуаля!'},
- {q:'Что такое короткое замыкание?',
-  opts:['Когда цепь слишком короткая','Когда провода красные','Когда ток идёт напрямую от «+» к «−», минуя детали','Когда батарейка совсем новая'],a:2,
-  why:'«Короткий» путь — без нагрузки. Батарейка перегревается, это опасно!'},
- {q:'Зачем нужен резистор?',
-  opts:['Чтобы ток бежал быстрее','Чтобы ограничить ток и защитить нежные детали','Чтобы цепь была красивее','Чтобы батарейка садилась быстрее'],a:1,
-  why:'Резистор — узкий мостик: он не даёт току стать слишком сильным и бережёт, например, светодиод.'},
-];
-let quizScore=0;
-function quizHTML(){
-  return '<div class="quizscore">Верно: <b id="quizScore">0</b> из '+QUIZ.length+'</div>'+
-    QUIZ.map((q,qi)=>'<div class="quizq" data-q="'+qi+'"><div class="quizq-t">'+(qi+1)+'. '+q.q+'</div>'+
-      q.opts.map((o,oi)=>'<button class="quizopt" data-o="'+oi+'">'+o+'</button>').join('')+
-      '<div class="quizwhy hidden">💡 '+q.why+'</div></div>').join('');
-}
-function wireQuiz(){
-  quizScore=0;
-  document.querySelectorAll('.quizq').forEach(box=>{
-    box.querySelectorAll('.quizopt').forEach(b=>b.onclick=()=>{
-      if(box.dataset.done)return;
-      box.dataset.done='1';
-      const qi=+box.dataset.q, oi=+b.dataset.o, right=QUIZ[qi].a===oi;
-      box.querySelectorAll('.quizopt').forEach(x=>{
-        x.disabled=true;
-        if(+x.dataset.o===QUIZ[qi].a)x.classList.add('right');
-      });
-      if(right){quizScore++;sDing();}
-      else{b.classList.add('wrong');tone(160,0.2,'sawtooth',0.08);}
-      box.querySelector('.quizwhy').classList.remove('hidden');
-      $('#quizScore').textContent=quizScore;
-      if(quizScore===QUIZ.length){confetti(60);sWin();}
+let triSel=null;
+document.querySelectorAll('.tri-cell').forEach(cell=>{
+  cell.setAttribute('tabindex','0');cell.setAttribute('role','button');
+  cell.setAttribute('aria-label','Найти '+cell.dataset.c);
+  cell.addEventListener('keydown',e=>{
+    if(e.key==='Enter'||e.key===' '){e.preventDefault();cell.dispatchEvent(new MouseEvent('click',{bubbles:true}));}
+  });
+  cell.addEventListener('click',()=>{
+    const c=cell.dataset.c;
+    triSel=(triSel===c)?null:c;
+    ['U','I','R'].forEach(k=>{
+      const on=triSel===k;
+      $('fill'+k).setAttribute('opacity',on?1:0);
+      $('lt'+k).style.opacity=on?0:1;
+      $('q'+k).style.opacity=on?1:0;
     });
-  });
-}
-
-const THEORY=[
- {icon:'💧',title:'Что такое ток',
-  html:'<p>Электрический <b>ток</b> — это крошечные заряженные частички, которые бегут по проводам. Их не видно, но они умеют работать: светить, крутить, звенеть!</p>'+
-    '<div class="demo">'+theoryCircuit(LEVELS[0].demo,{color:'#ff5252',r:5,per:4,dur:2.2})+'</div>'+
-    '<p>Похоже на воду в трубах: <b>насос</b> (батарейка) гонит воду по круглой трубе и крутит <b>колесо</b> (лампочку):</p>'+
-    waterSVG()+
-    '<p>Без насоса вода стоит на месте. Без батарейки ток тоже стоит — значит, ничего не светит и не крутится.</p>'},
- {icon:'⚡',title:'Напряжение и Сопротивление',
-  html:'<p><b>Напряжение (Вольты)</b> — это сила, с которой батарейка "толкает" ток.</p>' +
-       '<div class="demo" style="margin:6px 0;">'+towerSVG()+'</div>' +
-       '<p>Похоже на водонапорную башню: чем выше башня, тем сильнее напор воды. Точно так же высоковольтные батарейки толкают ток гораздо сильнее!</p>' +
-       '<p><b>Сопротивление (Омы)</b> — это то, как сильно деталь "мешает" току. Резистор работает как узкая труба: он специально уменьшает поток, чтобы другие детали (например, нежный светодиод) не сгорели от слишком сильного тока.</p>'},
- {icon:'🪵',title:'Проводники и Изоляторы',
-  html:'<p>Материалы бывают двух видов:</p>'+
-       '<div class="demorow">'+
-       '<div class="democol good" style="padding:10px;"><div class="cap">Металлы легко пропускают ток (Проводники ✅)</div></div>'+
-       '<div class="democol bad" style="padding:10px;"><div class="cap">Пластик, резина, стекло — не пускают (Изоляторы 🚫)</div></div>'+
-       '</div>'+
-       '<p>Именно поэтому провода <b>внутри медные</b> (чтобы ток бежал), а <b>снаружи пластиковые</b> (чтобы нас не ударило током, когда мы берём их в руки).</p>'+
-       '<p>Птица может сидеть на одном проводе, потому что между её лапами почти нет разницы напряжений и через тело не идёт опасный ток. Касаться одновременно двух проводов или провода и земли опасно! Обычная вода проводит ток из-за растворённых солей и других примесей, поэтому никогда не трогай приборы мокрыми руками.</p>'},
- {icon:'🔄',title:'Цепь — это круг',
-  html:'<p>Ток бегает только по <b>замкнутому кругу</b> — как по беговой дорожке. Разорвал круг — ток останавливается!</p>'+
-    '<div class="demorow">'+
-    '<div class="democol bad"><div class="demo">'+theoryCircuit({vb:'0 0 175 150',closed:false,components:[{type:'battery',x:35,y:110},{type:'switch',x:88,y:110},{type:'lamp',x:140,y:110}],wires:[['d0',1,'d1',0],['d1',1,'d2',0],['d2',1,'d0',0]]})+'</div><div class="cap">Разомкнута 🚫 тока нет</div></div>'+
-    '<div class="democol good"><div class="demo">'+theoryCircuit({vb:'0 0 175 150',closed:true,components:[{type:'battery',x:35,y:110},{type:'switch',x:88,y:110},{type:'lamp',x:140,y:110}],wires:[['d0',1,'d1',0],['d1',1,'d2',0],['d2',1,'d0',0]]})+'</div><div class="cap">Замкнута ✅ ток бежит!</div></div>'+
-    '</div>'+
-    '<p>Выключатель — это «калитка» на дорожке: щёлк — калитка закрыта, ток не пробежит, лампочка гаснет. Ещё щёлк — калитка открыта, всё светится!</p>'},
- {icon:'➕',title:'Плюс и минус',
-  html:'<p>У батарейки два полюса: <b style="color:#e53935">«+» (плюс)</b> и <b style="color:#1e88e5">«−» (минус)</b>. Ток <b>выходит</b> из «+», пробегает через детали и <b>возвращается</b> в «−». Это называется <b>полярность</b>.</p>'+
-    '<div class="demo">'+batterySVG()+'</div>'+
-    '<p>Лампочке, выключателю и резистору <b>всё равно</b>, какой стороной их подключить. А вот светодиоду <b>строго важно</b>: ток должен входить в его ножку «+»!</p>'},
- {icon:'🔗',title:'Соединения',
-  html:'<p>Детали можно соединять <b>подряд</b> (последовательно) или <b>веточками</b> (параллельно):</p>'+
-    '<div class="demorow">'+
-    '<div class="democol"><div class="demo">'+theoryCircuit(LEVELS[2].demo)+'</div><div class="cap">Последовательно: одна цепочка. Убери одну лампу — погаснут обе 🌑</div></div>'+
-    '<div class="democol"><div class="demo">'+theoryCircuit(LEVELS[3].demo)+'</div><div class="cap">Параллельно: две веточки. Каждая лампа работает сама 💡💡</div></div>'+
-    '</div>'+
-    '<p>В комнате лампы включены <b>параллельно</b> — одну можно выключить, другие светят. А в старых гирляндах лампочки шли <b>подряд</b>: перегорала одна — гасла вся гирлянда!</p>'},
- {icon:'🧲',title:'Электромагниты',
-  html:'<p>Когда ток бежит по проводу, он создаёт невидимое <b>магнитное поле</b>! Если намотать провод катушкой, получится настоящий магнит.</p>'+
-       '<p>Именно так работает наш <b>моторчик</b>: электричество создаёт магниты внутри него, они отталкиваются и заставляют мотор крутиться. А <b>звонок</b> использует электромагнит, чтобы притягивать железный молоточек: дзынь-дзынь!</p>'},
- {icon:'🧰',title:'Детали',
-  html:'<p>Все детали игры и их суперспособности:</p><div class="tgrid">'+
-    Object.keys(COMPINFO).map(t=>'<div class="tcard"><svg viewBox="-44 -28 88 56">'+COMP[t].draw({props:{closed:false}},{on:(t==='lamp'||t==='led'||t==='bell')},{})+'</svg><b>'+COMP[t].name+'</b><span>'+COMPINFO[t]+'</span></div>').join('')+'</div>'},
- {icon:'🔥',title:'Короткое замыкание',
-  html:'<p>Если соединить «+» и «−» батарейки <b>голым проводом без деталей</b> — ток побежит «насквозь». Это <b>короткое замыкание</b>:</p>'+
-    '<div class="demo">'+shortSVG()+'</div>'+
-    '<div class="warnbox">⚡ Батарейка быстро перегревается и может потечь или загореться! В игре она просто «охает» 🔥 — а в жизни так делать нельзя.</div>'+
-    '<p>В настоящих приборах от короткого замыкания защищают <b>предохранители</b> — они сгорают первыми и спасают цепь.</p>'},
- {icon:'🛡',title:'Безопасность',
-  html:'<p>Электричество — отличный помощник, но требует уважения! Запомни правила:</p><ul class="safelist">'+
-    ['🔌 <b>Розетки — не игрушка.</b> Ничего в них не совай и не трогай мокрыми руками.',
-     '💧 <b>Вода проводит ток!</b> Фен в ванной и зарядка рядом с водой — плохая идея.',
-     '🔋 <b>Батарейки нельзя</b> разбирать, греть, кидать в огонь и соединять контакты металлом.',
-     '🧯 Появился запах, дым или треск — немедленно скажи взрослому!',
-     '🏡 Опыты с электричеством — только с детскими наборами и лучше вместе со взрослыми.',
-     '🌳 На улице держись подальше от оборванных проводов и трансформаторных будок.'
-    ].map(s=>'<li>'+s+'</li>').join('')+'</ul>'},
- {icon:'📚',title:'Словарик',
-  html:'<dl class="dict">'+
-    [['Ток','упорядоченное движение заряженных частиц. Батарейка не создаёт частицы, а заставляет уже имеющиеся заряды двигаться по цепи.'],
-     ['Напряжение (Вольты)','сила, с которой источник тока "толкает" заряды по цепи.'],
-     ['Сопротивление (Омы)','свойство деталей мешать прохождению тока, снижая его силу.'],
-     ['Электрическая цепь','путь по замкнутому кругу, по которому бежит ток.'],
-     ['Полярность','наличие плюса и минуса. Если детали "важна полярность", её нельзя подключать задом наперёд.'],
-     ['Проводник','материал, через который ток проходит легко (металл, вода).'],
-     ['Изолятор','материал, который ток не пропускает (пластик, резина).'],
-     ['Короткое замыкание','опасный путь тока без деталей — «напрямик» от плюса к минусу.'],
-     ['Последовательно','детали в одну цепочку подряд: работают вместе или никак.'],
-     ['Параллельно','у тока несколько путей-веточек: детали работают независимо.']
-    ].map(p=>'<dt>'+p[0]+'</dt><dd>'+p[1]+'</dd>').join('')+'</dl>'},
-
- /* ============ НОВЫЕ РАЗДЕЛЫ ============ */
- {icon:'💡',title:'Закон Ома',
-  html:'<p>Три главные величины в электричестве связаны простым правилом — <b>законом Ома</b>:</p>'+
-    '<div class="demo">'+ohmSVG()+'</div>'+
-    '<p>Спрячь пальцем любую букву в треугольнике — и увидишь формулу:</p>'+
-    '<ul class="safelist">'+
-      '<li><b>U = I × R</b> — напряжение равно току, умноженному на сопротивление.</li>'+
-      '<li><b>I = U ÷ R</b> — хочешь больше тока? Подними напряжение или уменьши сопротивление.</li>'+
-      '<li><b>R = U ÷ I</b> — сопротивление показывает, сколько вольт нужно, чтобы «протолкнуть» один ампер.</li>'+
-    '</ul>'+
-    '<div class="factbox">🚰 <b>Аналогия с водой:</b> напряжение — это <b>напор</b> (высота башни), ток — <b>сколько воды течёт</b> в секунду, сопротивление — <b>узость трубы</b>. Хочешь больше воды (тока)? Либо подними башню, либо расширь трубу!</div>'},
-
- {icon:'🔥',title:'Мощность — Ватты',
-  html:'<p><b>Мощность</b> измеряется в <b>Ваттах (Вт)</b> и показывает, сколько энергии деталь тратит за секунду. Чем больше ватт — тем ярче лампа, тем быстрее греется чайник, тем громче звенит звонок.</p>'+
-    '<div class="demo">'+powerSVG()+'</div>'+
-    '<p>Формула очень простая:</p>'+
-    '<ul class="safelist">'+
-      '<li><b>P = U × I</b> — мощность = напряжение × ток.</li>'+
-      '<li>Пример: батарейка 9 В, а ток через лампу 0,5 А → мощность = 9 × 0,5 = <b>4,5 Вт</b>.</li>'+
-    '</ul>'+
-    '<div class="factbox">💡 <b>Забавный факт:</b> старые лампы накаливания на 100 Вт тратили 100 ватт, а светили как современная LED-лампа на 12 Вт. Вот почему сегодня все переходят на светодиоды — тот же свет, а энергии в 8 раз меньше!</div>'},
-
- {icon:'〰️',title:'Постоянный и переменный ток',
-  html:'<p>Ток бывает двух видов — и они ведут себя по-разному:</p>'+
-    '<div class="demo">'+acdcSVG()+'</div>'+
-    '<ul class="safelist">'+
-      '<li><b>Постоянный ток (DC)</b> — бежит всегда в одну сторону. Живёт в батарейках, аккумуляторах, повербанках.</li>'+
-      '<li><b>Переменный ток (AC)</b> — периодически меняет направление. В сети с частотой 50 Гц происходит 50 полных колебаний в секунду.</li>'+
-    '</ul>'+
-    '<div class="factbox">🌍 <b>Почему в розетках переменный ток?</b> Его легко передавать на огромные расстояния с малыми потерями. А вот телефону и компьютеру нужен постоянный ток — поэтому внутри зарядки стоит маленький «переводчик» (выпрямитель), который превращает AC в DC.</div>'},
-
- {icon:'🔋',title:'Как работает батарейка',
-  html:'<p>Что происходит внутри батарейки? Настоящая химическая лаборатория!</p>'+
-    '<div class="demo">'+batteryChemSVG()+'</div>'+
-    '<p>Внутри батарейки — два <b>электрода</b> (палочки разного металла) и <b>электролит</b> (жидкость или паста, проводящая ток). Между ними идёт <b>химическая реакция</b>:</p>'+
-    '<ul class="safelist">'+
-      '<li>На «−» электроде скапливаются лишние электроны. Они очень хотят удрать по проводу.</li>'+
-      '<li>Как только цепь замкнута — электроны бегут от «−» через лампочку к «+».</li>'+
-      '<li>Внутри батарейки реакция продолжается, подкидывая новые электроны на «−».</li>'+
-    '</ul>'+
-    '<div class="factbox">⏳ <b>Почему батарейка «садится»?</b> Реакция постепенно заканчивается: один из электродов растворяется, и толкать электроны больше нечему. Химия — исчерпалась, заряд — кончился.</div>'},
-
- {icon:'⛈️',title:'Молния — ток в небе',
-  html:'<p>Электричество живёт не только в проводах — оно есть и в природе! Самый мощный природный разряд — это <b>молния</b>.</p>'+
-    '<div class="demo">'+lightningSVG()+'</div>'+
-    '<p>Внутри грозовой тучи капельки воды и льдинки сталкиваются, и заряды разделяются. Часто нижняя часть тучи заряжена отрицательно, а земля под ней — положительно. Между тучей и землёй нарастает <b>напряжение в миллионы вольт</b>!</p>'+
-    '<p>Когда разница становится слишком большой — воздух не выдерживает, и БАМ! Возникает гигантская искра. Это и есть молния.</p>'+
-    '<div class="factbox">⚡ <b>Цифры:</b> молния длится мгновение, но за это время ток достигает <b>30 000 ампер</b> (в 100 000 раз больше, чем через лампочку), а воздух вокруг разогревается до <b>30 000 °C</b> — в 5 раз горячее поверхности Солнца! Гром, который мы слышим — это взрыв воздуха от такого жара.</div>'+
-    '<div class="warnbox">🌳 <b>Правила безопасности:</b> в грозу не прячься под одиноким деревом, не купайся и не стой на открытом поле. Лучшее убежище — здание или машина (её металлический корпус работает как «клетка Фарадея»).</div>'},
-
- {icon:'👨‍🔬',title:'Великие изобретатели',
-  html:'<p>Электричество, которое мы сейчас принимаем как должное, когда-то было чудом. За ним стоят удивительные люди:</p>'+
-    '<div class="demo">'+inventorsSVG()+'</div>'+
-    '<p><b>Алессандро Вольта</b> (Италия, 1745–1827) — построил первый в мире источник постоянного тока — «вольтов столб» из чередующихся медных и цинковых кружков, разделённых тканью, смоченной в кислоте. В его честь единицу напряжения назвали <b>Вольтом</b>.</p>'+
-    '<p><b>Томас Эдисон</b> (США, 1847–1931) — довёл лампочку до рабочего вида: подобрал нить, которая светит долго, и построил первую электростанцию для целого района Нью-Йорка. Сотни изобретений!</p>'+
-    '<p><b>Никола Тесла</b> (Сербия→США, 1856–1943) — разработал важные электродвигатели и многофазные системы <b>переменного тока</b>. Его работы помогли создать современные системы передачи электроэнергии.</p>'+
-    '<div class="factbox">🧠 <b>Интересно:</b> Эдисон продвигал постоянный ток, а Тесла и Вестингауз — переменный. Это соперничество вошло в историю как «Война токов». Переменный ток стал основой электросетей, но постоянный ток тоже незаменим в электронике и аккумуляторах.</div>'},
-
- {icon:'📐',title:'Условные обозначения',
-  html:'<p>Настоящие электрики рисуют схемы не картинками, а специальными <b>символами</b>. Их придумали, чтобы любой инженер в любой стране мог прочитать схему.</p>'+
-    '<div class="demo">'+symbolsSVG()+'</div>'+
-    '<p>Сравни: в игре детали нарисованы «по-настоящему», а вот так они выглядят на бумаге:</p>'+
-    '<ul class="safelist">'+
-      '<li><b>Батарейка</b> — длинная и короткая палочки. Длинная = «+», короткая = «−».</li>'+
-      '<li><b>Лампа</b> — кружок с крестиком внутри.</li>'+
-      '<li><b>Выключатель</b> — две точки и откинутая линия-«ножка».</li>'+
-      '<li><b>Резистор</b> — прямоугольник. В России и Европе так, а в США рисуют «зигзаг».</li>'+
-      '<li><b>Светодиод</b> — треугольник со стрелками наружу. Стрелки — это «свет наружу».</li>'+
-    '</ul>'+
-    '<div class="factbox">📖 <b>Попробуй:</b> посмотри на свою схему в игре, а потом нарисуй её на листочке этими символами. Так делают настоящие инженеры!</div>'},
-
- {icon:'💚',title:'Экономия электричества',
-  html:'<p>Электричество — это не бесконечный ресурс. Чтобы его получить, сжигают уголь, газ или уран, а это загрязняет планету. Простые привычки помогают сэкономить:</p>'+
-    '<div class="demo">'+saveEnergySVG()+'</div>'+
-    '<ul class="safelist">'+
-      '<li><b>💡 Светодиодные лампы</b> светят так же ярко, как лампы накаливания, но тратят в 8–10 раз меньше энергии.</li>'+
-      '<li><b>🔌 Зарядка в розетке</b> без телефона всё равно потребляет чуть-чуть электричества (режим ожидания).</li>'+
-      '<li><b>❄️ Холодильник</b> — самый прожорливый прибор дома. Не оставляй дверцу открытой и не ставь горячее внутрь.</li>'+
-      '<li><b>⚡ Режим ожидания (standby)</b> у телевизора, компьютера и приставки за год «съедает» электричества как целый месяц работы лампочки.</li>'+
-    '</ul>'+
-    '<div class="factbox">🌍 <b>Задумайся:</b> если каждый житель Земли будет выключать свет, выходя из комнаты, мы сэкономим столько электричества, сколько вырабатывает целая крупная электростанция. Экономить — это несложно и очень важно!</div>'},
- /* ============ новые разделы: ещё больше теории! ============ */
- {icon:'🏠',title:'Электричество дома',
-  html:'<p>Электричество приходит в квартиру по проводам от электростанции. Прежде чем разойтись по розеткам, оно проходит через важных «сторожей»:</p>'+
-    '<div class="demo">'+homeSVG()+'</div>'+
-    '<ul class="safelist">'+
-    '<li><b>Счётчик</b> — считает, сколько электричества израсходовала семья. Именно по его цифрам оплачивают электроэнергию.</li>'+
-    '<li><b>Предохранитель (или автомат)</b> — «слабое звено»: если ток вдруг станет слишком большим (например, при коротком замыкании), он мгновенно размыкает цепь и спасает проводку от пожара.</li>'+
-    '<li><b>Заземление</b> — третий контакт в розетке. Если в приборе что-то сломалось, оно уводит опасный ток в землю мимо человека.</li></ul>'+
-    '<div class="factbox">🏠 <b>Знаешь ли ты?</b> Медь проводит ток лучше золота и стоит гораздо дешевле, поэтому её используют в проводке. Золото ценят в крошечных контактах электроники: оно почти не окисляется и не ржавеет.</div>'},
- {icon:'🎈',title:'Статическое электричество',
-  html:'<p>Трёшь о волосы расчёску или надувной шарик — и они начинают <b>притягивать</b> лёгкие предметы и поднимать волосы дыбом! Это <b>статическое электричество</b>.</p>'+
-    '<div class="demo">'+staticSVG()+'</div>'+
-    '<p>При трении одни материалы отдают микроскопические частички, другие забирают. Заряды накапливаются и сидят на месте («стоят»), поэтому тока пока нет. Но стоит поднести руку — искра!</p>'+
-    '<div class="factbox">⚡ <b>Статика — старшая сестра молнии!</b> Молния — это тот же заряд, накопленный трением, только между облаком и землёй. А зимняя искра от дверной ручки — маленькая молния в несколько сантиметров.</div>'},
- {icon:'🐟',title:'Живые батарейки',
-  html:'<p>Электричество вырабатывают не только станции — некоторые животные носят его <b>в себе</b>!</p>'+
-    '<div class="demo">'+natureSVG()+'</div>'+
-    '<ul class="safelist">'+
-    '<li><b>Электрический угорь</b> живёт в реках Южной Америки. Его тело — настоящая биологическая батарейка из тысяч «элементов»! Разряд до <b>860 вольт</b> оглушает рыбу — так он охотится и защищается.</li>'+
-    '<li><b>Электрический скат</b> — «подводный электрошокер» тёплых морей.</li>'+
-    '<li><b>Ты сам</b> — тоже электрическое существо! Мозг посылает мышцам команды короткими электрическими импульсами. Поэтому бьётся сердце и двигаются руки.</li></ul>'},
- {icon:'🔁',title:'Аккумуляторы',
-  html:'<p>Обычную батарейку выбрасывают, когда она «села». А <b>аккумулятор</b> можно заряжать снова и снова — сотни и даже тысячи раз!</p>'+
-    '<div class="demo">'+accuSVG()+'</div>'+
-    '<p>Секрет в том, что реакция внутри <b>обратимая</b>: работая, аккумулятор отдаёт заряды; заряжаясь — принимает их обратно. Телефоны, ноутбуки, электромобили и даже космические станции питаются аккумуляторами.</p>'+
-    '<div class="factbox">📱 <b>Правило здоровья аккумулятора:</b> держи заряд примерно между 20% и 80%. Постоянные зарядки «до 100 и до нуля» старят его быстрее.</div>'},
- {icon:'🌱',title:'Зелёная энергия',
-  html:'<p>Электростанции на угле и газе загрязняют воздух. Поэтому человечество учится брать электричество прямо из природы:</p>'+
-    '<div class="demo">'+greenSVG()+'</div>'+
-    '<ul class="safelist">'+
-    '<li><b>Солнце</b> — солнечные панели превращают свет в ток. Космические спутники работают на них десятилетиями!</li>'+
-    '<li><b>Ветер</b> — ветряки раскручивают огромные генераторы.</li>'+
-    '<li><b>Вода</b> — плотины ГЭС: вода падает вниз и крутит турбины, как колесо мельницы.</li></ul>'+
-    '<div class="factbox">☀️ <b>Рекордсмен:</b> за один час Земля получает от Солнца столько энергии, сколько всё человечество тратит за целый год. Осталось только собрать её!</div>'},
- {icon:'🚄',title:'Сверхпроводники',
-  html:'<p>Обычные провода всегда немного <b>сопротивляются</b> току и греются — часть энергии теряется впустую. Но есть чудо-материалы: при сильном холоде их сопротивление падает до <b>нуля</b>! Они называются <b>сверхпроводниками</b>.</p>'+
-    '<div class="demo">'+supercondSVG()+'</div>'+
-    '<p>Ещё чудеснее: сверхпроводник <b>вытесняет магнитное поле</b> — магнит просто парит над ним! На этом держатся поезда на магнитной подушке: они не касаются рельсов и летят со скоростью самолёта.</p>'+
-    '<div class="factbox">🧊 <b>Почему всё не делают из сверхпроводников?</b> Их нужно охлаждать почти до −270 °C жидким гелием. Учёные ищут материалы, которые сверхпроводят при комнатной температуре, — это одна из главных загадок физики!</div>'},
- {icon:'⚙️',title:'Как крутится мотор',
-  html:'<p>Почему моторчик вообще крутится? Внутри него — две магнитные «стенки» и <b>катушка из провода</b> между ними.</p>'+
-    '<div class="demo">'+motorHowSVG()+'</div>'+
-    '<ul class="safelist">'+
-    '<li>Ток в катушке превращает её в <b>электромагнит</b> с северным и южным полюсами.</li>'+
-    '<li>Постоянные магниты тянут и толкают катушку — она поворачивается, как стрелка компаса.</li>'+
-    '<li>Хитрость: в нужный момент специальный <b>коллектор</b> переворачивает ток в катушке — и магниты толкают её дальше! Так и рождается вращение.</li></ul>'+
-    '<div class="factbox">🔄 <b>А в обратную сторону?</b> Тот же моторчик, если покрутить его рукой, вырабатывает ток! Так устроены динамо-фонари и велосипедные фонари.</div>'},
- {icon:'🧭',title:'Законы Кирхгофа',
-  html:'<p>Эти два правила помогают понять даже большие схемы с множеством веток.</p>'+
-    '<ul class="safelist">'+
-      '<li><b>Первый закон — правило узлов.</b> Узел — место соединения проводов. Сколько тока втекает в узел, столько же вытекает: заряд там не накапливается бесконечно. Например, если в узел входит 0,3 А, а по одной ветке уходит 0,1 А, по другой уйдёт <b>0,2 А</b>.</li>'+
-      '<li><b>Второй закон — правило контуров.</b> Если обойти замкнутый контур, сумма подъёмов и падений напряжения равна нулю. Напряжение батарейки распределяется между деталями цепи.</li>'+
-    '</ul>'+
-    '<div class="factbox">💡 <b>Простой пример:</b> батарейка 9 В и две одинаковые последовательные лампы делят напряжение поровну — примерно по 4,5 В на каждую. При параллельном соединении на каждой ветке будет полное напряжение батарейки.</div>'+
-    '<p>В игре это видно особенно хорошо: в последовательной цепи один разрыв гасит всё, а в параллельных ветках токи складываются в общем проводе.</p>'},
- {icon:'📏',title:'Как измерять ток',
-  html:'<p>Для измерений используют <b>мультиметр</b>. Важно не только выбрать величину, но и правильно подключить прибор.</p>'+
-    '<ul class="safelist">'+
-      '<li><b>Амперметр измеряет ток и включается последовательно.</b> Цепь размыкают, а прибор вставляют в разрыв, чтобы весь нужный ток прошёл через него.</li>'+
-      '<li><b>Вольтметр измеряет напряжение и включается параллельно.</b> Его щупы ставят на две точки, разницу напряжений между которыми нужно узнать.</li>'+
-      '<li>Перед подключением выбери правильный режим и предел измерения. Для учебных опытов используй только безопасные низковольтные источники.</li>'+
-    '</ul>'+
-    '<div class="warnbox">⚠️ <b>Никогда не подключай амперметр прямо к «+» и «−» батарейки.</b> В этом режиме у него очень маленькое сопротивление — получится короткое замыкание. Розетку для учебных опытов использовать нельзя.</div>'},
- {icon:'🧮',title:'Формулы соединений',
-  html:'<p>Для одинаковых законов тока и напряжения соединения ведут себя по-разному.</p>'+
-    '<ul class="safelist">'+
-      '<li><b>Последовательно:</b> через все детали идёт один и тот же ток. Напряжения складываются: <b>U = U₁ + U₂ + …</b>. Сопротивления тоже складываются: <b>R = R₁ + R₂ + …</b>.</li>'+
-      '<li><b>Параллельно:</b> на всех ветках одинаковое напряжение, а токи складываются: <b>I = I₁ + I₂ + …</b>. Общее сопротивление меньше сопротивления любой отдельной ветки.</li>'+
-      '<li>Для двух параллельных резисторов удобна формула: <b>R = (R₁ × R₂) ÷ (R₁ + R₂)</b>.</li>'+
-    '</ul>'+
-    '<div class="factbox">🔢 <b>Пример:</b> 100 Ом и 200 Ом последовательно дадут 300 Ом. Параллельно: (100 × 200) ÷ 300 ≈ <b>66,7 Ом</b>.</div>'},
- {icon:'💠',title:'Светодиод и резистор',
-  html:'<p><b>Светодиод</b> — полупроводниковая деталь. Он светится, когда ток проходит в прямом направлении: от его «+» к «−». В обратную сторону обычный светодиод ток почти не пропускает.</p>'+
-    '<p>Но правильная полярность — ещё не всё. Светодиод нельзя подключать к источнику напрямую без ограничения тока: он может перегреться и выйти из строя. Поэтому последовательно с ним ставят <b>резистор</b>.</p>'+
-    '<div class="factbox">🧮 <b>Как выбрать резистор:</b> R = (U источника − U светодиода) ÷ I. Например, для батарейки 9 В, светодиода с напряжением около 2 В и тока 0,01 А: R = (9 − 2) ÷ 0,01 = <b>700 Ом</b>. Можно взять ближайшее большее стандартное значение.</div>'+
-    '<p>У настоящего светодиода длинная новая ножка обычно означает анод «+», а плоский срез на корпусе — катод «−». Но надёжнее свериться с описанием детали.</p>'},
- {icon:'🎓',title:'Проверь себя!',quiz:true,
-  html:'<p>Маленький экзамен юного электрика! Отвечай кликом — за правильные ответы будет сюрприз 🎉</p>'+quizHTML()},
-];
-let theoryPage=0;
-function openTheory(i){
-  theoryPage=i||0;
-  const p=THEORY[theoryPage];
-  showModal('<h2>📖 Азбука электрика</h2>'+
-    '<div class="ttabs">'+THEORY.map((t,idx)=>'<button class="ttab'+(idx===theoryPage?' on':'')+'" data-t="'+idx+'">'+t.icon+' '+t.title+'</button>').join('')+'</div>'+
-    '<div class="tpage">'+p.html+'</div>'+
-    '<div class="btnrow tnav"><button class="btn blue round" id="tPrev">‹</button><span class="tcount">'+(theoryPage+1)+' / '+THEORY.length+'</span><button class="btn blue round" id="tNext">›</button><button class="btn green" id="tClose">Закрыть</button></div>');
-  document.querySelectorAll('.ttab').forEach(b=>b.onclick=debounceBtn(()=>openTheory(+b.dataset.t), 300));
-  $('#tPrev').onclick=debounceBtn(()=>openTheory((theoryPage+THEORY.length-1)%THEORY.length), 300);
-  $('#tNext').onclick=debounceBtn(()=>openTheory((theoryPage+1)%THEORY.length), 300);
-  $('#tClose').onclick=closeModal;
-  const activeTab=document.querySelector('.ttab.on'),tabs=document.querySelector('.ttabs');
-  if(activeTab)tabs.scrollTop=Math.max(0,activeTab.offsetTop-tabs.clientHeight/2+activeTab.offsetHeight/2);
-  if(p.quiz)wireQuiz();
-}
-
-/* ================= цели уровней ================= */
-function lampsAllOn(sm,cs){const ls=cs.filter(c=>c.type==='lamp');return ls.length>0&&ls.every(l=>sm.on[l.id]&&sm.on[l.id].on);}
-function checkGoal(){
-  const cs=S.components;
-  const closedOpts=cs.some(c=>c.type==='switch')?{switchState:'closed'}:{};
-  switch(LV.n){
-    case 1:
-      return lampsAllOn(simulate(cs,S.wires),cs)
-        ?{ok:true}
-        :{ok:false,msg:'Лампочка не светится. Проверь: обе клеммы лампочки соединены? Цепь замкнута в круг?'};
-    case 2:{
-      if(!cs.some(c=>c.type==='switch'))return{ok:false,msg:'Добавь выключатель! Возьми его в панели слева.'};
-      if(!lampsAllOn(simulate(cs,S.wires,{switchState:'closed'}),cs))
-        return{ok:false,msg:'При включённом выключателе лампочка не горит — проверь соединения.'};
-      if(lampsAllOn(simulate(cs,S.wires,{switchState:'open'}),cs))
-        return{ok:false,msg:'Лампочка должна гаснуть при выключенном выключателе! Ток должен идти ЧЕРЕЗ выключатель.'};
-      return{ok:true};}
-    case 3:{
-      const ls=cs.filter(c=>c.type==='lamp');
-      if(ls.length<2)return{ok:false,msg:'Нужно две лампочки! Перетащи вторую из панели.'};
-      const sm=simulate(cs,S.wires,closedOpts);
-      if(!lampsAllOn(sm,cs))return{ok:false,msg:'Не все лампочки горят — проверь цепочку.'};
-      for(const l of ls){
-        const sm2=simulate(cs, S.wires, Object.assign({},closedOpts,{unscrewed:new Set([l.id])}));
-        const others=cs.filter(c=>c.type==='lamp'&&c.id!==l.id);
-        if(others.some(o=>sm2.on[o.id]&&sm2.on[o.id].on))
-          return{ok:false,msg:'Лампочки соединены параллельно. Соедини их одной цепочкой: «+» → лампа → лампа → «−».'};
-      }
-      return{ok:true};}
-    case 4:{
-      const ls=cs.filter(c=>c.type==='lamp');
-      if(ls.length<2)return{ok:false,msg:'Нужно две лампочки! Перетащи вторую из панели.'};
-      const sm=simulate(cs,S.wires,closedOpts);
-      if(!lampsAllOn(sm,cs))return{ok:false,msg:'Не все лампочки горят — проверь соединения.'};
-      for(const l of ls){
-        const sm2=simulate(cs, S.wires, Object.assign({},closedOpts,{unscrewed:new Set([l.id])}));
-        const others=cs.filter(c=>c.type==='lamp'&&c.id!==l.id);
-        if(!others.every(o=>sm2.on[o.id]&&sm2.on[o.id].on))
-          return{ok:false,msg:'Пока что одна лампочка зависит от другой — это последовательная цепь. Сделай две отдельные веточки между одними и теми же точками!'};
-      }
-      return{ok:true};}
-    case 5:{
-      const m=cs.find(c=>c.type==='motor');
-      if(!m)return{ok:false,msg:'Добавь моторчик из панели слева!'};
-      return (sim.on[m.id]&&sim.on[m.id].on)?{ok:true}:{ok:false,msg:'Моторчик не крутится. Проверь: обе клеммы соединены? Цепь замкнута?'};
-    }
-    case 6:{
-      if(!cs.some(c=>c.type==='button'))return{ok:false,msg:'Добавь кнопку! Возьми её в панели слева.'};
-      if(!cs.some(c=>c.type==='bell'))return{ok:false,msg:'Добавь звонок! Возьми его в панели слева.'};
-      const smP=simulate(cs,S.wires,{buttonState:'pressed'});
-      const smR=simulate(cs,S.wires,{buttonState:'released'});
-      const bellOn=sm=>cs.some(c=>c.type==='bell'&&sm.on[c.id]&&sm.on[c.id].on);
-      if(!bellOn(smP))return{ok:false,msg:'При нажатой кнопке звонок не звенит — проверь цепочку: «+» → кнопка → звонок → «−».'};
-      if(bellOn(smR))return{ok:false,msg:'Звонок должен молчать, когда кнопка не нажата! Ток должен идти ЧЕРЕЗ кнопку.'};
-      return{ok:true};}
-    case 7:{
-      const led=cs.find(c=>c.type==='led');
-      if(!led)return{ok:false,msg:'Добавь светодиод из панели слева!'};
-      if(sim.on[led.id]&&sim.on[led.id].on)return{ok:true};
-      if(sim.on[led.id]&&sim.on[led.id].reverse)
-        return{ok:false,msg:'Светодиод подключён наоборот! Ток должен входить через его ножку «+». Поверни светодиод кнопкой ⟳ или поменяй провода.'};
-      return{ok:false,msg:'Светодиод не светится — проверь, замкнута ли цепь.'};
-    }
-    case 8:{
-      const sm=simulate(cs,S.wires,closedOpts);
-      if(!lampsAllOn(sm,cs))return{ok:false,msg:'Лампочка не светится — проверь цепь.'};
-      const rs=cs.filter(c=>c.type==='resistor'&&sm.on[c.id]&&sm.on[c.id].on);
-      if(!rs.length)return{ok:false,msg:'Резистор не в цепи с лампочкой! Поставь его прямо в цепочку: «+» → резистор → лампочка → «−».'};
-      // Резистор засчитывается, только если он последовательно с лампой:
-      // «выкрутив» его, лампочка должна погаснуть
-      const ls=cs.filter(c=>c.type==='lamp');
-      const series=rs.some(r=>{
-        const sm2=simulate(cs,S.wires,Object.assign({},closedOpts,{unscrewed:new Set([r.id])}));
-        return ls.some(l=>!(sm2.on[l.id]&&sm2.on[l.id].on));
-      });
-      if(!series)return{ok:false,msg:'Резистор стоит не на пути тока к лампочке (например, в обходной ветке). Поставь его в саму цепочку с лампой!'};
-      return{ok:true};}
-    case 9:{
-      if(!cs.some(c=>c.type==='lamp'))return{ok:false,msg:'Добавь лампочку из панели слева!'};
-      if(!cs.some(c=>c.type==='bell'))return{ok:false,msg:'Добавь звонок из панели слева!'};
-      if(!cs.some(c=>c.type==='button'))return{ok:false,msg:'Добавь кнопку из панели слева!'};
-      const lamp=cs.find(c=>c.type==='lamp'), bell=cs.find(c=>c.type==='bell');
-      const bothOn=sm=>sm.on[lamp.id]&&sm.on[lamp.id].on&&sm.on[bell.id]&&sm.on[bell.id].on;
-      if(!bothOn(simulate(cs,S.wires,{buttonState:'pressed'})))
-        return{ok:false,msg:'При нажатой кнопке должны работать И лампочка, И звонок.'};
-      const released=simulate(cs,S.wires,{buttonState:'released'});
-      const lampStillOn=released.on[lamp.id]&&released.on[lamp.id].on;
-      const bellStillOn=released.on[bell.id]&&released.on[bell.id].on;
-      if(lampStillOn||bellStillOn)
-        return{ok:false,msg:'При отпущенной кнопке не должны работать ни лампа, ни звонок! Ток должен идти ЧЕРЕЗ кнопку.'};
-      // независимость веток: убираем звонок — лампа горит; убираем лампу — звонок звенит
-      const noBell=simulate(cs,S.wires,{buttonState:'pressed',unscrewed:new Set([bell.id])});
-      const noLamp=simulate(cs,S.wires,{buttonState:'pressed',unscrewed:new Set([lamp.id])});
-      if(!(noBell.on[lamp.id]&&noBell.on[lamp.id].on))
-        return{ok:false,msg:'Лампочка зависит от звонка — это последовательное соединение. Сделай две отдельные веточки после кнопки!'};
-      if(!(noLamp.on[bell.id]&&noLamp.on[bell.id].on))
-        return{ok:false,msg:'Звонок зависит от лампочки — это последовательное соединение. Сделай две отдельные веточки после кнопки!'};
-      return{ok:true};}
-    case 10:{
-      if(!cs.some(c=>c.type==='switch'))return{ok:false,msg:'Добавь выключатель из панели слева!'};
-      if(!cs.some(c=>c.type==='button'))return{ok:false,msg:'Добавь кнопку из панели слева!'};
-      const lamp=cs.find(c=>c.type==='lamp');
-      if(!lamp)return{ok:false,msg:'Добавь на схему лампочку.'};
-      const lampOn=st=>simulate(cs,S.wires,st);
-      const onCC=lampOn({switchState:'closed',buttonState:'pressed'});
-      if(!(onCC.on[lamp.id]&&onCC.on[lamp.id].on))
-        return{ok:false,msg:'Лампочка не горит, даже когда выключатель включён и кнопка нажата. Проверь цепочку!'};
-      const onOC=lampOn({switchState:'open',buttonState:'pressed'});
-      if(onOC.on[lamp.id]&&onOC.on[lamp.id].on)
-        return{ok:false,msg:'Лампа горит при ВЫКЛЮЧЕННОМ выключателе! Ток должен идти ЧЕРЕЗ него, а не в обход.'};
-      const onCR=lampOn({switchState:'closed',buttonState:'released'});
-      if(onCR.on[lamp.id]&&onCR.on[lamp.id].on)
-        return{ok:false,msg:'Лампа горит БЕЗ нажатия кнопки! Ток должен идти ЧЕРЕЗ кнопку, а не в обход.'};
-      return{ok:true};}
-  }
-  return{ok:true};
-}
-function diagnose(){
-  const cs=S.components;
-  if(!cs.some(c=>c.type==='battery'))return 'В схеме нет батарейки — без неё току негде взяться!';
-  if(sim.short)return 'Где-то «+» соединён с «−» напрямую, в обход всех деталей. Разорви этот провод!';
-  if(!sim.closed){
-    if(!S.wires.length)return 'Проводов пока нет. Потяни от клеммы одной детали к клемме другой или коснись двух клемм по очереди.';
-    const used=new Set();
-    S.wires.forEach(w=>{used.add(w.a.c+':'+w.a.t);used.add(w.b.c+':'+w.b.t);});
-    const dangling=cs.filter(c=>c.type!=='battery')
-      .filter(c=>COMP[c.type].terms.some((t,i)=>!used.has(c.id+':'+i)));
-    if(dangling.length)
-      return 'Цепь не замкнута: неподключённые клеммы у '+dangling.map(c=>COMP[c.type].name.toLowerCase()).join(', ')+'. Току нужен непрерывный путь от «+» до «−»!';
-    const sw=cs.find(c=>c.type==='switch'&&!c.props.closed);
-    if(sw)return 'Цепь собрана, но выключатель разомкнут — щёлкни по нему!';
-    return 'Цепь не замкнута в круг. Проверь, нет ли разрыва посередине — току некуда бежать.';
-  }
-  return null;
-}
-function runCheck(){
-  const r=checkGoal();
-  if(r.ok){
-    sWin();confetti(90);
-    const fails=LV._fails||0;
-    const stars=fails===0?3:(fails<=2?2:1);
-    progress.stars[LV.n]=Math.max(progress.stars[LV.n]||0,stars);
-    progress.unlocked=Math.max(progress.unlocked,Math.min(LV.n+1,LEVELS.length));
-    saveProgress();
-    showModal(
-      '<h2>🎉 Ура! Уровень пройден!</h2>'+
-      '<div class="winstars">'+[1,2,3].map(i=>'<span class="'+(i<=stars?'':'off')+'">⭐</span>').join('')+'</div>'+
-      '<div class="factbox">🧠 <b>Знаешь ли ты?</b> '+(LV.fact||'')+'</div>'+
-      '<p>'+(stars===3?'Идеально с первого раза! Ты настоящий электрик! ⚡':'Здорово! Попробуй ещё раз без ошибок — получишь больше звёзд!')+'</p>'+
-      '<div class="btnrow"><button class="btn orange" id="mAgain">🔁 Ещё раз</button>'+
-      (LEVELS[LV.n]?'<button class="btn green big" id="mNext">'+(LEVELS[LV.n].sandbox?'🛠 В песочницу!':'▶ Следующий уровень')+'</button>':'')+'</div>');
-    $('#mAgain').onclick=debounceBtn(()=>{closeModal();startLevel(LV.n);});
-    $('#mNext').onclick=debounceBtn(()=>{closeModal();startLevel(LV.n+1);});
-  }else{
-    LV._fails=(LV._fails||0)+1;sFail();
-    const g=$('#goalcard');g.classList.remove('shake');void g.offsetWidth;g.classList.add('shake');
-    const tip=diagnose();
-    toast('🤔 '+r.msg+(tip?'\n💡 '+tip:''));
-  }
-}
-
-/* ================= экраны, меню ================= */
-function starsStr(n){const s=progress.stars[n]||0;return s?'⭐'.repeat(s):'';}
-function buildMenu(){
-  const box=$('#levels');box.innerHTML='';
-  LEVELS.forEach(l=>{
-    const d=document.createElement('button');d.type='button';
-    const locked=l.n>1&&l.n>progress.unlocked&&!l.sandbox;
-    d.className='lvl'+(l.sandbox?' sandbox':'')+(locked?' locked':'');
-    d.innerHTML=l.sandbox
-      ?'<div class="num">🛠</div><div class="name">Свободная песочница — собери что хочешь!</div>'
-      :'<div class="num">'+l.n+'</div><div class="name">'+l.title+'</div><div class="stars">'+starsStr(l.n)+'</div>'+(locked?'🔒':'');
-    d.setAttribute('aria-label',l.sandbox?'Свободная песочница':'Уровень '+l.n+': '+l.title+(locked?', закрыт':''));
-    if(locked)d.disabled=true;
-    else d.onclick=debounceBtn(()=>{sClick();showIntro(l.n);}, 500);
-    box.appendChild(d);
-  });
-}
-function showMenu(){
-  $('#game').classList.add('hidden');$('#menu').classList.remove('hidden');
-  buildMenu();
-}
-function showIntro(n){
-  const l=LEVELS[n-1];
-  showModal(
-    '<h2>'+(l.sandbox?'🛠 ':'Уровень '+l.n+': ')+l.title+'</h2>'+
-    '<div class="prof"><div class="face">🤖</div><p><b>Профессор Вольт:</b><br>'+l.story+'</p></div>'+
-    (l.demo?'<div class="demo">'+demoSVG(l.demo)+'</div><div style="font-size:12.5px;color:#7d939e;margin-top:-2px">Так может выглядеть схема:</div>':'')+
-    '<div class="btnrow"><button class="btn gray" id="mBack">Назад</button><button class="btn green big" id="mGo">🚀 Поехали!</button></div>');
-  $('#mBack').onclick=closeModal;
-  $('#mGo').onclick=debounceBtn(()=>{closeModal();startLevel(n);});
-}
-function startLevel(n){
-  LV=LEVELS[n-1];LV._fails=0;LV._hintIdx=0;prevClosed=false;
-  S.components=[];S.wires=[];S.sel=null;S.selWire=null;
-  armed=false;placing=null;drag=null;wireTap=null;
-  document.querySelectorAll('.pal').forEach(x=>x.classList.remove('armed'));
-  $('#wireTip').classList.remove('show');
-  $('#menu').classList.add('hidden');$('#game').classList.remove('hidden');
-  resizeBoard();
-  $('#lvlname').textContent=(LV.sandbox?'🛠 ':'Уровень '+LV.n+': ')+LV.title;
-  $('#goalcard .goaltext').textContent=LV.goal;
-  $('#btnCheck').classList.toggle('hidden',!!LV.sandbox);
-  buildPalette();
-  render();
-}
-function buildPalette(){
-  const p=$('#palette');
-  p.querySelectorAll('.pal').forEach(x=>x.remove());p.scrollLeft=0;
-  LV.palette.forEach(type=>{
-    const d=document.createElement('div');
-    d.className='pal';d.dataset.type=type;
-    d.innerHTML='<svg viewBox="-44 -28 88 56">'+COMP[type].draw({props:{closed:false}},{on:false},{})+'</svg><span>'+COMP[type].name+'</span>';
-    p.appendChild(d);
-  });
-}
-
-/* ================= модальные окна, тосты, конфетти ================= */
-function showModal(html){const card=$('#modalCard');card.innerHTML=html;card.scrollTop=0;$('#modal').classList.remove('hidden');}
-function closeModal(){$('#modal').classList.add('hidden');}
-$('#modal').addEventListener('pointerdown',e=>{if(e.target.id==='modal')closeModal();});
-let toastT=null;
-function toast(msg){
-  const t=$('#toast');t.textContent=msg;t.classList.remove('hidden');
-  clearTimeout(toastT);toastT=setTimeout(()=>t.classList.add('hidden'),3400);
-}
-function confetti(n){
-  const cols=['#ef476f','#06d6a0','#118ab2','#ffad33','#9b5de5','#ffd54f'];
-  for(let i=0;i<n;i++){
-    const d=document.createElement('div');d.className='confp';
-    const sz=6+Math.random()*8;
-    d.style.cssText='left:'+(Math.random()*100)+'vw;width:'+sz+'px;height:'+sz*(0.6+Math.random())+'px;background:'+cols[i%cols.length]+';animation-delay:'+(Math.random()*0.7)+'s;animation-duration:'+(2.2+Math.random()*1.4)+'s;border-radius:'+(Math.random()<0.4?'50%':'2px');
-    document.body.appendChild(d);setTimeout(()=>d.remove(),4200);
-  }
-}
-
-/* ================= взаимодействие ================= */
-let drag=null;
-let placing=null;
-let armed=false;
-
-document.addEventListener('pointerdown',()=>audio(),{once:true});
-
-/* --- панель деталей --- */
-$('#palette').addEventListener('pointerdown',e=>{
-  const it=e.target.closest('.pal');if(!it)return;
-  const type=it.dataset.type;
-  if(type==='battery'&&S.components.some(c=>c.type==='battery')){toast('Пока хватит одной батарейки 😊');return;}
-  e.preventDefault();audio();
-  const g=document.createElement('div');g.id='ghost';
-  g.innerHTML='<svg viewBox="-44 -28 88 56">'+COMP[type].draw({props:{}},{on:false},{})+'</svg>';
-  g.style.left=e.clientX+'px';g.style.top=e.clientY+'px';
-  document.body.appendChild(g);
-  placing={type,ghost:g,moved:false,src:it};
-});
-function dist2(a,b,c,d){return Math.hypot(a-c,b-d);}
-window.addEventListener('pointermove',e=>{
-  if(placing){
-    if(placing.sx===undefined){placing.sx=e.clientX;placing.sy=e.clientY;}
-    placing.moved=dist2(e.clientX,e.clientY,placing.sx,placing.sy)>8;
-    placing.ghost.style.left=e.clientX+'px';placing.ghost.style.top=e.clientY+'px';
-  }
-  if(drag)dragMove(e);
-});
-window.addEventListener('pointercancel',()=>{
-  if(placing){placing.ghost.remove();placing=null;}
-  if(drag){
-    if(drag.mode==='press'){const c=compById(drag.id);if(c)c.props.pressed=false;}
-    if(drag.mode==='wire'){wireTap=null;svg.classList.remove('wiring');gTemp.innerHTML='';}
-    $('#wireTip').classList.remove('show');
-    drag=null;render();
-  }
-});
-window.addEventListener('pointerup',e=>{
-  if(placing){
-    placing.ghost.remove();
-    const overSvg=document.elementFromPoint(e.clientX,e.clientY);
-    const inCanvas=overSvg&&($('#canvas').contains(overSvg)||overSvg.id==='canvas');
-    if(placing.moved&&inCanvas){
-      const p=svgPoint(e);if(p)placeAt(placing.type,p.x,p.y);
-    }else if(!placing.moved){
-      armed=armed&&armed===placing.type?false:placing.type;
-      document.querySelectorAll('.pal').forEach(x=>x.classList.toggle('armed',x.dataset.type===armed));
-      if(armed)toast('Теперь кликни на свободное место на поле ⬇');
-    }
-    placing=null;
-  }
-  if(drag)dragUp(e);
-});
-
-/* --- основное поле --- */
-svg.addEventListener('pointerdown',e=>{
-  if(e.button!==undefined&&e.button!==0)return;
-  const p=svgPoint(e);if(!p)return;
-  let t=e.target.closest('[data-term]');
-  let cg=e.target.closest('[data-comp]');
-  const wg=e.target.closest('[data-wire]');
-  // Большая сенсорная зона клеммы не должна перехватывать нажатие на корпус детали.
-  if(t&&t.classList.contains('term-hit')){
-    const hitComp=compById(+t.dataset.comp);
-    if(hitComp&&Math.hypot(p.x-hitComp.x,p.y-hitComp.y)<18){
-      cg=gWires.querySelector('.comp[data-comp="'+hitComp.id+'"]');t=null;
-    }
-  }
-
-  if(t){
-    drag={mode:'wire',from:{c:+t.dataset.comp,t:+t.dataset.term},moved:false,sx:p.x,sy:p.y};
-    svg.classList.add('wiring');audio();
-    $('#wireTip').classList.add('show');
-    return;
-  }
-  cancelWireTap();
-  if(armed&&!cg&&!wg){
-    placeAt(armed,p.x,p.y);
-    armed=false;document.querySelectorAll('.pal').forEach(x=>x.classList.remove('armed'));
-    return;
-  }
-  if(cg){
-    const c=compById(+cg.dataset.comp);if(!c)return;
-    S.sel=c.id;S.selWire=null;audio();
-    if(c.type==='button'){c.props.pressed=true;drag={mode:'press',id:c.id,dx:p.x-c.x,dy:p.y-c.y,sx:p.x,sy:p.y};render();return;}
-    drag={mode:'comp',id:c.id,dx:p.x-c.x,dy:p.y-c.y,sx:p.x,sy:p.y,moved:false};
-    render();return;
-  }
-  if(wg){
-    S.selWire=+wg.dataset.wire;S.sel=null;sClick();
-    render();return;
-  }
-  if(S.sel!==null||S.selWire!==null){S.sel=null;S.selWire=null;$('#toolRot').style.display='';$('#comptools').classList.add('hidden');render();}
-});
-function dragMove(e){
-  const p=svgPoint(e);if(!p)return;
-  if(drag.mode==='comp'){
-    const c=compById(drag.id);if(!c)return;
-    if(dist2(p.x,p.y,drag.sx,drag.sy)>6)drag.moved=true;
-    if(drag.moved){c.x=snap(clamp(p.x-drag.dx,60,boardW-60));c.y=snap(clamp(p.y-drag.dy,60,boardH-60));requestRender();}
-  }else if(drag.mode==='wire'){
-    if(dist2(p.x,p.y,drag.sx,drag.sy)>6)drag.moved=true;
-    const c=compById(drag.from.c);
-    if(!c){drag=null;return;}
-    const A=termPos(c,drag.from.t);
-    const D=termDir(c,drag.from.t);
-    const dir={x:p.x-A.x,y:p.y-A.y};const len=Math.hypot(dir.x,dir.y)||1;
-    gTemp.innerHTML='<path class="wpath" d="'+wireD(A,D,{x:p.x,y:p.y},{x:dir.x/len,y:dir.y/len})+'" style="stroke:#ff9f1c" opacity="0.85"/>';
-  }else if(drag.mode==='press'){
-    // Тянули кнопку, а не нажимали? Отменяем нажатие и превращаем в перетаскивание
-    if(dist2(p.x,p.y,drag.sx,drag.sy)>6){
-      const c=compById(drag.id);if(c)c.props.pressed=false;
-      drag={mode:'comp',id:drag.id,dx:drag.dx,dy:drag.dy,sx:drag.sx,sy:drag.sy,moved:true};
-      requestRender();
-    }
-  }
-}
-
-function connectWire(from,to){
-  if(!from||!to||(from.c===to.c&&from.t===to.t))return false;
-  const dup=S.wires.some(w=>
-    (w.a.c===from.c&&w.a.t===from.t&&w.b.c===to.c&&w.b.t===to.t)||
-    (w.b.c===from.c&&w.b.t===from.t&&w.a.c===to.c&&w.a.t===to.t));
-  if(dup){toast('Эти клеммы уже соединены.');return false;}
-  S.wires.push({id:nid(),color:WIRE_COLORS[S.wires.length%WIRE_COLORS.length],a:from,b:to});
-  sPop();return true;
-}
-function cancelWireTap(){
-  wireTap=null;svg.classList.remove('wiring');gTemp.innerHTML='';$('#wireTip').classList.remove('show');
-}
-function dragUp(e){
-  $('#wireTip').classList.remove('show');
-  if(drag.mode==='comp'){
-    const c=compById(drag.id);
-    if(c&&!drag.moved&&c.type==='switch'){
-      c.props.closed=!c.props.closed;sClick();
-    }
-  }else if(drag.mode==='wire'){
-    svg.classList.remove('wiring');gTemp.innerHTML='';
-    const el=document.elementFromPoint(e.clientX,e.clientY);
-    const t=el&&el.closest?el.closest('[data-term]'):null;
-    const to=t?{c:+t.dataset.comp,t:+t.dataset.term}:null;
-    if(drag.moved){
-      if(to)connectWire(drag.from,to);
-      wireTap=null;
-    }else if(to&&wireTap&&(wireTap.c!==to.c||wireTap.t!==to.t)){
-      connectWire(wireTap,to);wireTap=null;
-    }else if(to&&wireTap&&wireTap.c===to.c&&wireTap.t===to.t){
-      wireTap=null; // повторное касание той же клеммы отменяет выбор
+    if(triSel){
+      const d=TRI[triSel];
+      $('triTitle').textContent=d.title;
+      $('triText').textContent=d.t;
+      $('triFormula').textContent=d.f;
+      $('triExample').textContent='Например: '+d.e;
+      burst(cell.getBoundingClientRect().left+40,cell.getBoundingClientRect().top+30);
     }else{
-      wireTap=drag.from;
+      $('triTitle').textContent='Выбери величину';
+      $('triText').textContent='Нажми на U, I или R в треугольнике — и я покажу правило.';
+      $('triFormula').textContent='U = I × R';
+      $('triExample').textContent='Например: 2 А × 6 Ом = 12 В';
     }
-  }else if(drag.mode==='press'){
-    const c=compById(drag.id);if(c)c.props.pressed=false;
-  }
-  drag=null;render();
-  if(wireTap){svg.classList.add('wiring');$('#wireTip').classList.add('show');}
-}
-
-let lastPlaceTime=0;
-function placeAt(type,x,y){
-  if(Date.now() - lastPlaceTime < 200) return;
-  lastPlaceTime = Date.now();
-  if(type==='battery'&&S.components.some(c=>c.type==='battery')){toast('Пока хватит одной батарейки 😊');return;}
-  const c={id:nid(),type,x:snap(clamp(x,60,boardW-60)),y:snap(clamp(y,60,boardH-60)),rot:0,
-    props:{closed:false,pressed:false}};
-  S.components.push(c);S.sel=c.id;S.selWire=null;
-  $('#toolRot').style.display='';
-  sPop();render();
-}
-function deleteSel(){
-  if(S.sel!==null){
-    S.components=S.components.filter(c=>c.id!==S.sel);
-    S.wires=S.wires.filter(w=>w.a.c!==S.sel&&w.b.c!==S.sel);
-    S.sel=null;sPop();render();
-  }else if(S.selWire!==null){
-    S.wires=S.wires.filter(w=>w.id!==S.selWire);
-    S.selWire=null;$('#toolRot').style.display='';$('#comptools').classList.add('hidden');sPop();render();
-  }
-}
-function rotateSel(){
-  if(S.sel===null)return;
-  const c=compById(S.sel);if(!c)return;
-  c.rot=((c.rot||0)+90)%360;sClick();render();
-}
-$('#toolDel').onclick=deleteSel;
-$('#toolRot').onclick=rotateSel;
-window.addEventListener('keydown',e=>{
-  if(e.key==='Delete'||e.key==='Backspace'){if(!$('#modal').classList.contains('hidden'))return;deleteSel();}
-  if(e.key==='r'||e.key==='R'||e.key==='к'||e.key==='К')rotateSel();
-  if(e.key==='Escape')closeModal();
+  });
 });
 
-/* --- верхняя панель (Debounced кнопки) --- */
-$('#btnMenu').onclick=debounceBtn(()=>{sClick();showMenu();}, 1000);
-$('#btnRestart').onclick=debounceBtn(()=>{sClick();startLevel(LV.n);toast('Уровень начат заново 🧹');}, 1000);
-
-function soundIcon(){$('#btnSound').textContent=muted?'🔇':'🔊';}
-$('#btnSound').onclick=()=>{muted=!muted;try{localStorage.setItem('ye_muted',muted?'1':'0');}catch(e){}soundIcon();if(!muted)sClick();};
-soundIcon();
-
-$('#btnCheck').onclick=debounceBtn(()=>{audio();runCheck();}, 1200);
-
-function showHint(){
-  const hs=LV.hints&&LV.hints.length?LV.hints:['Посмотри на демо-схему в начале уровня и повтори её!'];
-  if(LV._hintIdx===undefined)LV._hintIdx=0;
-  const h=hs[LV._hintIdx%hs.length];
-  const shown=Math.min(LV._hintIdx+1,hs.length);
-  const more=LV._hintIdx+1<hs.length;
-  LV._hintIdx++;
-  showModal('<h2>💡 Подсказка '+shown+' из '+hs.length+'</h2>'+
-    '<div class="prof"><div class="face">🤖</div><p>'+h+'</p></div>'+
-    (LV.demo?'<div class="demo">'+demoSVG(LV.demo)+'</div>':'')+
-    '<div class="btnrow">'+(more?'<button class="btn orange" id="mMore">💡 Ещё подсказку</button>':'')+
-    '<button class="btn green" id="mOk">Понятно!</button></div>');
-  if(more)$('#mMore').onclick=()=>{closeModal();setTimeout(showHint,60);};
-  $('#mOk').onclick=closeModal;
+/* ═══ ТЕСТ ═══ */
+const QUIZ=[
+ {q:'В фонарике стоит батарейка на <b class="tU">4,5 В</b>, а лампочка имеет сопротивление <b class="tR">3 Ом</b>. Какой ток <b class="tI">I</b> побежит по цепи?',
+  a:['13,5 А','1,5 А','7,5 А'],c:1,
+  hint:'Нужен ток? Дели напряжение на сопротивление: I = U ÷ R.',
+  why:'I = U ÷ R = 4,5 В ÷ 3 Ом = 1,5 А. Вольты, делённые на омы, дают амперы!'},
+ {q:'Моторчик игрушечной машинки имеет сопротивление <b class="tR">6 Ом</b>. Через него бежит ток <b class="tI">2 А</b>. Какое напряжение <b class="tU">U</b> даёт батарейка?',
+  a:['12 В','3 В','8 В'],c:0,
+  hint:'Нужно напряжение? Умножай ток на сопротивление: U = I × R.',
+  why:'U = I × R = 2 А × 6 Ом = 12 В. Умножили амперы на омы — получили вольты.'},
+ {q:'На батарейке написано <b class="tU">9 В</b>, а амперметр показывает <b class="tI">3 А</b>. Чему равно сопротивление <b class="tR">R</b> цепи?',
+  a:['27 Ом','12 Ом','3 Ом'],c:2,
+  hint:'Нужно сопротивление? Дели напряжение на ток: R = U ÷ I.',
+  why:'R = U ÷ I = 9 В ÷ 3 А = 3 Ом. Треугольник не подвёл!'},
+ {q:'Даша заменила лампочку на другую — сопротивление стало <b class="tR">больше</b>, а батарейку оставила ту же. Что случится с током?',
+  a:['Ток не изменится','Ток станет меньше','Ток станет больше'],c:1,
+  hint:'Вернись в лабораторию: подкрути R вверх, не трогая U, и посмотри на амперметр.',
+  why:'Толчок (U) тот же, но путь труднее — бегунов становится меньше. По формуле I = U ÷ R: если R растёт, I уменьшается.'},
+ {q:'У Даши две лампочки: у первой сопротивление <b class="tR">2 Ом</b>, у второй — <b class="tR">4 Ом</b>. Батарейка одна и та же — <b class="tU">8 В</b>. У какой лампочки ток больше и во сколько раз?',
+  a:['У первой — в 2 раза','У второй — в 2 раза','Токи одинаковые'],c:0,
+  hint:'Посчитай ток для каждой лампочки по формуле I = U ÷ R и сравни.',
+  why:'У первой: I = 8 ÷ 2 = 4 А. У второй: I = 8 ÷ 4 = 2 А. Сопротивление вдвое меньше — ток вдвое больше!'}
+];
+const TITLES=s=>s===5?'Юный электромагистр!':s===4?'Блестящий электрик!':s===3?'Уверенный монтёр!':s>=1?'Стажёр-исследователь':'Первые искры — уже успех!';
+const qLamps=$('qLamps');
+for(let i=0;i<5;i++){
+  const w=document.createElement('div'); w.className='q-lamp';
+  w.innerHTML='<svg viewBox="0 0 24 34"><path class="bulb" d="M12 2a9 9 0 0 1 9 9c0 3.4-2 5.6-3.4 7.4-.8 1-1.1 2-1.2 3.1H7.6c-.1-1.1-.4-2.1-1.2-3.1C5 16.6 3 14.4 3 11a9 9 0 0 1 9-9z"/><rect x="7" y="23.6" width="10" height="3.2" rx="1.4" fill="var(--ink)"/><rect x="7.6" y="28.4" width="8.8" height="2.6" rx="1.2" fill="var(--ink)"/></svg>';
+  qLamps.appendChild(w);
 }
-$('#btnHint').onclick=debounceBtn(()=>{sClick();showHint();}, 600);
+let qIdx=0,qScore=0,qFirst=true,qAnswered=false;
+function renderQ(){
+  qAnswered=false; qFirst=true;
+  const q=QUIZ[qIdx];
+  $('qCount').textContent=`Вопрос ${qIdx+1} из ${QUIZ.length}`;
+  $('qText').innerHTML=q.q;
+  const box=$('qAnswers'); box.innerHTML='';
+  q.a.forEach((txt,i)=>{
+    const b=document.createElement('button');
+    b.className='q-ans'; b.type='button'; b.textContent=txt;
+    b.addEventListener('click',()=>answer(i,b));
+    box.appendChild(b);
+  });
+  $('qHint').hidden=true;
+  $('qHintBtn').textContent='Показать подсказку';
+  $('qHintBtn').hidden=false;
+  $('qAfter').hidden=true;
+}
+function answer(i,btn){
+  if(qAnswered) return;
+  const q=QUIZ[qIdx];
+  if(i===q.c){
+    qAnswered=true;
+    btn.classList.add('good');
+    if(qFirst) qScore++;
+    qLamps.children[qIdx].classList.add('lit');
+    const r=btn.getBoundingClientRect();
+    burst(r.left+r.width/2,r.top+r.height/2);
+    $('qWhy').textContent='Верно! '+q.why;
+    $('qHintBtn').hidden=true; $('qHint').hidden=true;
+    $('qAfter').hidden=false;
+    $('qNext').textContent=qIdx===QUIZ.length-1?'Показать результат':'Следующий вопрос';
+    [...$('qAnswers').children].forEach(b=>b.disabled=true);
+  }else{
+    qFirst=false;
+    btn.classList.add('bad'); btn.disabled=true;
+    btn.classList.remove('shake'); void btn.offsetWidth; btn.classList.add('shake');
+    $('qHint').textContent=q.hint; $('qHint').hidden=false;
+    $('qHintBtn').hidden=true;
+  }
+}
+ $('qHintBtn').addEventListener('click',()=>{
+  $('qHint').textContent=QUIZ[qIdx].hint; $('qHint').hidden=false;
+  $('qHintBtn').hidden=true;
+});
+ $('qNext').addEventListener('click',()=>{
+  qIdx++;
+  if(qIdx<QUIZ.length) renderQ();
+  else{
+    $('qBody').hidden=true; $('qFinal').hidden=false;
+    $('qfScore').textContent=`Задач решено с первой попытки: ${qScore} из ${QUIZ.length}`;
+    $('qfTitle').textContent=TITLES(qScore);
+    $('qfText').textContent=qScore>=4?'Профессор Ом гордится тобой: формулы ты знаешь, а главное — понимаешь, откуда они берутся.'
+      :'Загляни ещё раз в лабораторию, покрути ручки — и задачки щёлкнутся как орешки. Нажми «Пройти ещё раз»!';
+    burst(innerWidth/2,innerHeight/3);
+  }
+});
+ $('qRestart').addEventListener('click',()=>{
+  qIdx=0; qScore=0;
+  [...qLamps.children].forEach(l=>l.classList.remove('lit'));
+  $('qFinal').hidden=true; $('qBody').hidden=false;
+  renderQ();
+});
+renderQ();
 
-$('#btnTheory').onclick=debounceBtn(()=>{sClick();openTheory(0);}, 800);
-$('#btnTheory2').onclick=debounceBtn(()=>{sClick();openTheory(0);}, 800);
+/* ═══ ПРОВОД-ПРОГРЕСС ═══ */
+const plDot=$('plDot'), plLamp=$('plLamp');
+function onScroll(){
+  const max=document.documentElement.scrollHeight-innerHeight;
+  const p=max>0?clamp(scrollY/max,0,1):0;
+  const w=document.querySelector('.powerline').clientWidth-13;
+  plDot.style.transform=`translateX(${p*w}px)`;
+  plLamp.classList.toggle('lit',p>.985);
+}
+addEventListener('scroll',onScroll,{passive:true});
+addEventListener('resize',onScroll);
+onScroll();
 
-$('#btnHowto').onclick=debounceBtn(()=>{
-  sClick();
-  showModal('<h2>❓ Как играть</h2>'+
-    '<div class="prof"><div class="face">🤖</div><p>'+
-    '1️⃣ <b>Перетащи</b> деталь из панели на поле (или коснись детали, а потом свободного места).<br>'+
-    '2️⃣ <b>Соедини детали:</b> потяни от одного кружочка-клеммы к другому. На телефоне можно просто коснуться двух клемм по очереди.<br>'+
-    '3️⃣ <b>Кликни по выключателю</b>, чтобы включить ток. Кнопку — нажми и держи!<br>'+
-    '4️⃣ Выбери деталь — и появятся кнопки <b>⟳ повернуть</b> и <b>🗑 удалить</b>.<br>'+
-    '5️⃣ Когда всё заработает — жми <b>✅ Проверить</b> и получай звёзды!<br>'+
-    '6️⃣ Хочешь понять, как всё это работает по-настоящему? Открой <b>📖 Азбуку электрика</b> — там теория с анимациями!</p></div>'+
-    '<div class="btnrow"><button class="btn green" id="mOk">Понятно!</button></div>');
-  $('#mOk').onclick=closeModal;
-}, 800);
-
-$('#btnReset').onclick=debounceBtn(()=>{
-  progress={unlocked:1,stars:{}};saveProgress();buildMenu();
-  toast('Прогресс сброшен — начинаем заново! 🚀');
-}, 1000);
-
-/* --- звонок звенит, пока есть ток --- */
-setInterval(()=>{
-  if(muted||!sim||$('#game').classList.contains('hidden'))return;
-  if(S.components.some(c=>c.type==='bell'&&sim.on[c.id]&&sim.on[c.id].on))sDing();
-},780);
-
-window.addEventListener('resize',()=>{resizeBoard();updateTools();});
-
-/* ================= старт ================= */
-buildMenu();
+/* ═══ ОБЩИЙ ЦИКЛ ═══ */
+let last=performance.now();
+function frame(now){
+  const dt=Math.min(.05,(now-last)/1000); last=now;
+  labTick(dt); waterTick(dt);
+  if(heroOn&&!reduced){heroOff+=110*dt; placeOnPath(heroLoop,heroRunners,heroOff);}
+  requestAnimationFrame(frame);
+}
+if(reduced){ // статичная, но честная картинка без движения
+  placeOnPath(labLoop,labRunners,0);
+  placeOnPath(heroLoop,heroRunners,0);
+}else{
+  requestAnimationFrame(frame);
+}
+})();
 </script>
 </body>
 </html>
